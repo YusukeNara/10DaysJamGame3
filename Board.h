@@ -27,6 +27,8 @@ public:
 
 	void CheckMatch();
 
+	void CheckFloat();
+
 
 
 	static const int BOARD_WIDTH = 6;

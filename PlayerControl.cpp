@@ -35,4 +35,6 @@ void PlayerControl::Draw()
 		PieceData::DRAWBASE_X + (selectX + 1) * 32 + 16,
 		PieceData::DRAWBASE_Y - (selectY + 1) * 32 - 16,
 		GetColor(255, 255, 255), false);
+
+
 }

@@ -25,8 +25,12 @@ public:
 	//ピースを上昇
 	void Up();
 
+	void Down();
+
 	//ピース座標設定
 	void SetPos(int newX, int newY);
+
+	int GetY() { return posY; }
 
 	//ピース消滅
 	void Clear();
@@ -36,8 +40,23 @@ public:
 
 	void DisplayPieceInfo(int displayX, int displayY);
 
+	PIECE_COLOR GetColorNum() { return color; }
+
 	static const int DRAWBASE_X = 354;
 	static const int DRAWBASE_Y = 500;
+
+	static const int PIECE_SIZE = 32;
+
+	// ==演算子をオーバーロード
+	bool operator==(const PieceData& r) const
+	{
+		return color == r.color;
+	}
+	bool operator!=(const PieceData& r) const
+	{
+		return !(color == r.color);
+	}
+
 
 private:
 	int posX = 0;

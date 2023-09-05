@@ -35,6 +35,10 @@ void PieceData::Up()
 	posY += 1;
 }
 
+void PieceData::Down()
+{
+}
+
 void PieceData::SetPos(int newX, int newY)
 {
 	posX = newX;
@@ -57,13 +61,13 @@ void PieceData::Draw()
 		c = GetColor(55, 55, 55);
 		break;
 	case PIECE_COLOR::PCOLOR_RED:
-		c = GetColor(255, 0, 0);
+		c = GetColor(255, 100, 100);
 		break;
 	case PIECE_COLOR::PCOLOR_GREEM:
-		c = GetColor(0, 255, 0);
+		c = GetColor(100, 255, 100);
 		break;
 	case PIECE_COLOR::PCOLOR_BLUE:
-		c = GetColor(0, 0, 255);
+		c = GetColor(100, 100, 255);
 		break;
 	case PIECE_COLOR::PCOLOR_WHITE:
 		c = GetColor(255, 255, 255);
@@ -72,7 +76,7 @@ void PieceData::Draw()
 		break;
 	}
 
-	DrawCircle(DRAWBASE_X + posX * 32, DRAWBASE_Y - posY * 32, 16, c);
+	DrawCircle(DRAWBASE_X + posX * PIECE_SIZE, DRAWBASE_Y - posY * PIECE_SIZE, PIECE_SIZE / 2, c);
 }
 
 void PieceData::DisplayPieceInfo(int displayX, int displayY)
@@ -99,7 +103,7 @@ void PieceData::DisplayPieceInfo(int displayX, int displayY)
 		break;
 	}
 
-	DrawFormatString(displayX, displayY, GetColor(100, 100, 100), "x:%d y:%d %s", posX, posY, colortxt.c_str());
+	DrawFormatString(displayX, displayY, GetColor(155, 155, 55), "x:%d y:%d %s", posX, posY, colortxt.c_str());
 
 
 }

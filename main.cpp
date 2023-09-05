@@ -74,6 +74,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			board.UpAndGenerate();
 		}
 
+		if (Input::IsKeyTrigger(KEY_INPUT_R)) {
+			board.Init();
+		}
+
+		board.Update();
+
 		player.Draw();
 
 		board.Draw();
