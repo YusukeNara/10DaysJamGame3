@@ -26,13 +26,22 @@ void Board::Init()
 	}
 
 	boardStatus = BoardStatus::WAIT;
+
+	level = 1;
+	flameCount = 0;
+	spawnTime = SPAWNTIME_MAX;
+
+	for (int i = 0; i < 3; i++) {
+		UpAndGenerate();
+	}
 }
 
 void Board::Update()
 {
+	//時間進行
+	TimeControl();
 
 	//ステータスに応じて毎フレーム関数を実行
-
 	switch (boardStatus)
 	{
 	case BoardStatus::WAIT:
@@ -94,6 +103,8 @@ void Board::UpAndGenerate()
 		x++;
 	}
 
+	//生成時に生成間隔をリセット
+	flameCount = 0;
 }
 
 void Board::StartPieceRotate(int selectX, int selectY)
@@ -169,6 +180,11 @@ void Board::DebugDraw()
 	DrawFormatString(0, 32, GetColor(255, 255, 255), "space :  piece rotate (反時計回り)");
 	DrawFormatString(0, 48, GetColor(255, 255, 255), "U :  piece generate");
 	DrawFormatString(0, 64, GetColor(255, 255, 255), "R :  reset");
+
+	DrawFormatString(0, 96, GetColor(255, 255, 255), "score : %u", score);
+	DrawFormatString(0, 112, GetColor(255, 255, 255), "generate remain : %u", (spawnTime - flameCount) / 60u);
+	DrawFormatString(0, 128, GetColor(255, 255, 255), "generate rate : %u", spawnTime / 60u);
+	DrawFormatString(0, 144, GetColor(255, 255, 255), "level : %u", level);
 }
 
 void Board::CheckMatch()
@@ -179,6 +195,8 @@ void Board::CheckMatch()
 	std::vector<PieceData*> deletePieceBuff;
 
 	static bool isMatchPiece = false;
+
+	int addScore = 0;
 
 	if (flame == 0) {
 		//左下からチェック
@@ -217,6 +235,17 @@ void Board::CheckMatch()
 		//ピースを消去開始
 		for (auto& d : deletePieceBuff) {
 			d->Clear();
+			//ピース1つにつき加算スコア増加
+			addScore += (baseScore * scoreScale);
+		}
+		score += addScore;
+
+		//スコアが既定値を超えた場合、レベルアップ
+		if (score > level * 10000) {
+			level++;
+			if (spawnTime > SPAWNTIME_MIN) {
+				spawnTime -= spawnDifficlutyRate;
+			}
 		}
 	}
 
@@ -224,9 +253,16 @@ void Board::CheckMatch()
 
 	if (flame > 15) {
 		//マッチしているピースがある場合は浮遊チェック
-		if (isMatchPiece) { boardStatus = BoardStatus::PROCESSING_FLOATCHECK; }
+		if (isMatchPiece) { 
+			boardStatus = BoardStatus::PROCESSING_FLOATCHECK; 
+			//スコア倍率増加
+			scoreScale += 0.2f;
+		}
 		//そうでないなら待機
-		else { boardStatus = BoardStatus::WAIT; }
+		else { 
+			boardStatus = BoardStatus::WAIT;
+			scoreScale = 1.0f;
+		}
 
 		flame = 0;
 		isMatchPiece = false;
@@ -269,6 +305,16 @@ void Board::CheckFloat()
 	if (flame > 15) {
 		boardStatus = BoardStatus::PROCESSING_MATCHCHECK;
 		flame = 0;
+	}
+
+}
+
+void Board::TimeControl()
+{
+	flameCount++;
+
+	if (flameCount > spawnTime) {
+		UpAndGenerate();
 	}
 
 }
