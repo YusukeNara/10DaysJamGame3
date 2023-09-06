@@ -15,7 +15,7 @@ void PlayerControl::UserControl()
 	if (Input::IsKeyTrigger(KEY_INPUT_S) && selectY > 0) {
 		selectY--;
 	}
-	if (Input::IsKeyTrigger(KEY_INPUT_D) && selectX + 1 < Board::BOARD_WIDTH) {
+	if (Input::IsKeyTrigger(KEY_INPUT_D) && selectX + 2 < Board::BOARD_WIDTH) {
 		selectX++;
 	}
 	if (Input::IsKeyTrigger(KEY_INPUT_A) && selectX > 0) {
@@ -23,7 +23,7 @@ void PlayerControl::UserControl()
 	}
 
 	if (Input::IsKeyTrigger(KEY_INPUT_SPACE)) {
-		board->RotatePiece(selectX, selectY);
+		board->StartPieceRotate(selectX, selectY);
 	}
 
 }
