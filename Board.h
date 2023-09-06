@@ -39,6 +39,7 @@ public:
 
 	void CheckFloat();
 
+	void TimerControl();
 
 
 	static const int BOARD_WIDTH = 6;
@@ -50,6 +51,27 @@ private:
 	std::array <std::array<PieceData, 6>, 11> boardData;
 
 	BoardStatus boardStatus;
+
+	unsigned int level = 1;
+
+	unsigned int timer = 3000;
+	//リセットされる時間
+	unsigned int resetTime = 3000;
+	//リセットされる時間の減少幅
+	unsigned int mintime = 120;
+	//リセットされる時間の下限
+	const unsigned int RESETTIME_MIN = 360;
+
+	//スコア
+	unsigned int score = 0;
+	//加算するスコア
+	unsigned int addScore = 100;
+	//連鎖倍率
+	float comboScale = 1.0f;
+	//レベルアップに必要なスコア
+	unsigned int levelupScore = 10000;
+	//レベルアップに必要なスコアの上昇幅
+	unsigned int levelupScoreBase = 10000;
 
 };
 

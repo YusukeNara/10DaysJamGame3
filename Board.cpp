@@ -20,19 +20,27 @@ void Board::Init()
 		int x = 0;
 		for (auto& bx : by) {
 			bx.Init(x, y);
+			bx.Generate(x, y);
 			x++;
 		}
 		y++;
 	}
 
 	boardStatus = BoardStatus::WAIT;
+
+	level = 1;
+	levelupScore = levelupScoreBase;
+	score = 0;
+	timer = 3000;
+	resetTime = 3000;
 }
 
 void Board::Update()
 {
+	//毎フレーム実行
+	UpAndGenerate();
 
 	//ステータスに応じて毎フレーム関数を実行
-
 	switch (boardStatus)
 	{
 	case BoardStatus::WAIT:
@@ -51,6 +59,8 @@ void Board::Update()
 	default:
 		break;
 	}
+
+	TimerControl();
 
 }
 
@@ -72,27 +82,53 @@ void Board::Draw()
 void Board::UpAndGenerate()
 {
 	//ピースの座標データを上昇させる
-	for (auto& by : boardData)
-	{
-		for (auto& bx : by) {
-			bx.Up();
+	//for (auto& by : boardData)
+	//{
+	//	for (auto& bx : by) {
+	//		bx.Up();
+	//	}
+	//}
+
+	////このとき天井（非表示の11列目）を超えるピースが存在する場合ゲームオーバーフラグ発生
+
+	////ピースデータを右シフトする（上昇と同義）
+	//std::shift_right(boardData.begin(), boardData.end(), 1);
+
+	////最下段に新たな要素を代入する
+	//std::array<PieceData, 6> initdata;
+	//boardData[0] = initdata;
+	//
+	//int x = 0;
+	//for (auto& b : boardData[0]) {
+	//	b.Generate(x, 0);
+	//	x++;
+	//}
+
+
+
+	//ピースは全部埋まらなければならない
+	//最上段にピースが存在しない場合、ピースを生成して簡易浮遊チェック
+	for (int x = 0; x < BOARD_WIDTH; x++) {
+		int nowY = 10;
+		bool downFlag = false;
+		if (boardData[10][x].GetColorNum() == PIECE_COLOR::PCOLOR_NONE) {
+			boardData[10][x].Generate(x, 10);
+			//自ピースの下にピースが存在するか、一番下につくまで下がり続ける
+			while (boardData[nowY - 1][x].GetColorNum() == PIECE_COLOR::PCOLOR_NONE) {
+				downFlag = true;
+				nowY--;
+				if (nowY == 0) { break; }
+			}
+
+			//新y座標の位置のピース情報に代入し、旧y座標のピースをnoneに
+			if (downFlag) {
+				boardData[nowY][x] = boardData[10][x];
+				boardData[nowY][x].SetPos(x, nowY);
+				boardData[10][x].Clear();
+			}
 		}
 	}
 
-	//このとき天井（非表示の11列目）を超えるピースが存在する場合ゲームオーバーフラグ発生
-
-	//ピースデータを右シフトする（上昇と同義）
-	std::shift_right(boardData.begin(), boardData.end(), 1);
-
-	//最下段に新たな要素を代入する
-	std::array<PieceData, 6> initdata;
-	boardData[0] = initdata;
-	
-	int x = 0;
-	for (auto& b : boardData[0]) {
-		b.Generate(x, 0);
-		x++;
-	}
 
 }
 
@@ -169,6 +205,12 @@ void Board::DebugDraw()
 	DrawFormatString(0, 32, GetColor(255, 255, 255), "space :  piece rotate (反時計回り)");
 	DrawFormatString(0, 48, GetColor(255, 255, 255), "U :  piece generate");
 	DrawFormatString(0, 64, GetColor(255, 255, 255), "R :  reset");
+
+	DrawFormatString(0, 80, GetColor(255, 255, 255), "timer : %u", timer / 60u);
+	DrawFormatString(0, 96, GetColor(255, 255, 255), "reset time : %u", resetTime / 60u);
+	DrawFormatString(0, 112, GetColor(255, 255, 255), "level : %u", level);
+	DrawFormatString(0, 128, GetColor(255, 255, 255), "score : %u", score);
+	DrawFormatString(0, 144, GetColor(255, 255, 255), "remain : %u", levelupScore - score);
 }
 
 void Board::CheckMatch()
@@ -214,22 +256,43 @@ void Board::CheckMatch()
 			}
 		}
 
+		int plusScore = 0;
+
 		//ピースを消去開始
 		for (auto& d : deletePieceBuff) {
 			d->Clear();
+			plusScore += (addScore * comboScale);
 		}
+
+		score += plusScore;
 	}
 
 	flame++;
 
 	if (flame > 15) {
 		//マッチしているピースがある場合は浮遊チェック
-		if (isMatchPiece) { boardStatus = BoardStatus::PROCESSING_FLOATCHECK; }
+		if (isMatchPiece) { 
+			boardStatus = BoardStatus::PROCESSING_FLOATCHECK; 
+			comboScale += 0.1f;
+		}
 		//そうでないなら待機
-		else { boardStatus = BoardStatus::WAIT; }
+		else { 
+			boardStatus = BoardStatus::WAIT; 
+			comboScale = 1.0f;
+		}
 
 		flame = 0;
 		isMatchPiece = false;
+
+		if (score > levelupScore) {
+			level++;
+			levelupScore += (levelupScoreBase * level);
+
+			timer = resetTime;
+			if (resetTime > RESETTIME_MIN) {
+				resetTime -= mintime;
+			}
+		}
 	}
 
 
@@ -270,5 +333,18 @@ void Board::CheckFloat()
 		boardStatus = BoardStatus::PROCESSING_MATCHCHECK;
 		flame = 0;
 	}
+
+}
+
+void Board::TimerControl()
+{
+	//時間減少
+	timer--;
+
+	if (timer < 0u) {
+		boardStatus = BoardStatus::GAMEOVER;
+	}
+
+
 
 }
