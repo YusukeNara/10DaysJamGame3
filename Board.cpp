@@ -80,11 +80,17 @@ void Board::Draw()
 
 void Board::UpAndGenerate()
 {
+	if (boardStatus == BoardStatus::GAMEOVER) { return; }
+
 	//ピースの座標データを上昇させる
 	for (auto& by : boardData)
 	{
 		for (auto& bx : by) {
 			bx.Up();
+			if (bx.GetY() == 10 && bx.GetColorNum() != PIECE_COLOR::PCOLOR_NONE) {
+				boardStatus = BoardStatus::GAMEOVER;
+				break;
+			}
 		}
 	}
 
@@ -109,6 +115,10 @@ void Board::UpAndGenerate()
 
 void Board::StartPieceRotate(int selectX, int selectY)
 {
+	if (boardStatus == BoardStatus::GAMEOVER) {
+		return;
+	}
+
 	rotateX = selectX;
 	rotateY = selectY;
 
@@ -185,6 +195,10 @@ void Board::DebugDraw()
 	DrawFormatString(0, 112, GetColor(255, 255, 255), "generate remain : %u", (spawnTime - flameCount) / 60u);
 	DrawFormatString(0, 128, GetColor(255, 255, 255), "generate rate : %u", spawnTime / 60u);
 	DrawFormatString(0, 144, GetColor(255, 255, 255), "level : %u", level);
+	if (boardStatus == BoardStatus::GAMEOVER) {
+		DrawFormatString(0, 160, GetColor(255, 255, 255), "GAME OVER");
+	}
+
 }
 
 void Board::CheckMatch()
