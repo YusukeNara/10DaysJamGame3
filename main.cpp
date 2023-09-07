@@ -4,6 +4,8 @@
 #include "PlayerControl.h"
 #include "Input.h"
 
+#include "FPSControl.h"
+
 // ウィンドウのタイトルに表示する文字列
 const char TITLE[] = "GAMEJAM";
 
@@ -35,6 +37,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 #endif // DEBUG
 
+	SetWaitVSyncFlag(false);
+
 	// 画面サイズを設定(解像度との比率で設定)
 	SetWindowSizeExtendRate(1.0);
 
@@ -50,6 +54,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	// 画像などのリソースデータの変数宣言と読み込み
 
 	// ゲームループで使う変数の宣言
+	FPSControl fps;
+	fps.FpsControll_Initialize();
+
 
 	Board board;
 	board.Init();
@@ -69,23 +76,21 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//---------  ここからプログラムを記述  ----------//
 
 		player.UserControl();
-
 		if (Input::IsKeyTrigger(KEY_INPUT_U)) {
 			board.UpAndGenerate();
 		}
-
 		if (Input::IsKeyTrigger(KEY_INPUT_R)) {
 			board.Init();
 		}
-
 		board.Update();
 
 		player.Draw();
-
 		board.Draw();
 		board.DebugDraw();
 
-
+		fps.FpsControll_Update();
+		fps.FpsControll_Draw();
+		fps.FpsControll_Wait();
 		//---------  ここまでにプログラムを記述  ---------//
 		// (ダブルバッファ)裏面
 		ScreenFlip();
