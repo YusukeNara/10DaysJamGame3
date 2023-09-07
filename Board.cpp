@@ -115,7 +115,7 @@ void Board::UpAndGenerate()
 
 void Board::StartPieceRotate(int selectX, int selectY)
 {
-	if (boardStatus == BoardStatus::GAMEOVER) {
+	if (boardStatus != BoardStatus::WAIT) {
 		return;
 	}
 
@@ -155,7 +155,7 @@ void Board::RotatePiece(int selectX, int selectY)
 
 	flame++;
 
-	if (flame > 15) {
+	if (flame > 5) {
 		boardStatus = BoardStatus::PROCESSING_FLOATCHECK;
 		flame = 0;
 	}
@@ -316,7 +316,7 @@ void Board::CheckFloat()
 	}
 
 	flame++;
-	if (flame > 15) {
+	if (flame > 5) {
 		boardStatus = BoardStatus::PROCESSING_MATCHCHECK;
 		flame = 0;
 	}
@@ -325,6 +325,12 @@ void Board::CheckFloat()
 
 void Board::TimeControl()
 {
+	//マッチチェック中は時間進行しない
+	//本来はコンボ進行中のみ進行しない
+	if (boardStatus == BoardStatus::PROCESSING_MATCHCHECK) {
+		return;
+	}
+
 	flameCount++;
 
 	if (flameCount > spawnTime) {
