@@ -60,7 +60,11 @@ void Board::Update()
 		break;
 	}
 
-	TimerControl();
+	if (boardStatus != BoardStatus::GAMEOVER) {
+		TimerControl();
+	}
+
+
 
 }
 
@@ -134,6 +138,8 @@ void Board::UpAndGenerate()
 
 void Board::StartPieceRotate(int selectX, int selectY)
 {
+	if (boardStatus == BoardStatus::GAMEOVER) { return; }
+
 	rotateX = selectX;
 	rotateY = selectY;
 
@@ -211,6 +217,10 @@ void Board::DebugDraw()
 	DrawFormatString(0, 112, GetColor(255, 255, 255), "level : %u", level);
 	DrawFormatString(0, 128, GetColor(255, 255, 255), "score : %u", score);
 	DrawFormatString(0, 144, GetColor(255, 255, 255), "remain : %u", levelupScore - score);
+
+	if (boardStatus == BoardStatus::GAMEOVER) {
+		DrawFormatString(0, 160, GetColor(255, 255, 255), "GAME OVER");
+	}
 }
 
 void Board::CheckMatch()
@@ -341,7 +351,7 @@ void Board::TimerControl()
 	//éûä‘å∏è≠
 	timer--;
 
-	if (timer < 0u) {
+	if (timer == 0u) {
 		boardStatus = BoardStatus::GAMEOVER;
 	}
 
