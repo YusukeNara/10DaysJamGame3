@@ -1,5 +1,7 @@
 #include "DxLib.h"
 
+#include "SceneMgr.h"
+
 #include "Board.h"
 #include "PlayerControl.h"
 #include "Input.h"
@@ -54,14 +56,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	// 画像などのリソースデータの変数宣言と読み込み
 
 	// ゲームループで使う変数の宣言
+	SceneMgr mgr;
+	mgr.Initialize();
 	FPSControl fps;
 	fps.FpsControll_Initialize();
 
-
-	Board board;
-	board.Init();
-	PlayerControl player;
-	player.Init(&board);
 
 	// ゲームループ
 	while (1)
@@ -71,22 +70,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		ClearDrawScreen();
 
 		Input::Update();
-
-
 		//---------  ここからプログラムを記述  ----------//
 
-		player.UserControl();
-		if (Input::IsKeyTrigger(KEY_INPUT_U)) {
-			board.UpAndGenerate();
-		}
-		if (Input::IsKeyTrigger(KEY_INPUT_R)) {
-			board.Init();
-		}
-		board.Update();
+		mgr.Update();
 
-		player.Draw();
-		board.Draw();
-		board.DebugDraw();
+		mgr.Draw();
 
 		fps.FpsControll_Update();
 		fps.FpsControll_Draw();

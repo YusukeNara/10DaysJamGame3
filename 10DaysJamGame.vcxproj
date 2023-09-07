@@ -135,21 +135,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseScene.cpp" />
     <ClCompile Include="Board.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="FPSControl.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="ISceneChanger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NY_random.cpp" />
     <ClCompile Include="PieceData.cpp" />
     <ClCompile Include="PlayerControl.cpp" />
+    <ClCompile Include="SceneMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseScene.h" />
     <ClInclude Include="Board.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="FPSControl.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="ISceneChanger.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="NY_random.h" />
     <ClInclude Include="PieceData.h" />
     <ClInclude Include="PlayerControl.h" />
+    <ClInclude Include="SceneMgr.h" />
+    <ClInclude Include="Task.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

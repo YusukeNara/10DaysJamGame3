@@ -13,11 +13,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{cfff638e-77db-434e-b68b-3311650dded5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene\scenes">
+      <UniqueIdentifier>{58980ef8-b56a-4203-941d-ebad20909774}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Board.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -35,6 +38,27 @@
     </ClCompile>
     <ClCompile Include="FPSControl.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseScene.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="ISceneChanger.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneMgr.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>scene\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>scene\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>scene\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +79,27 @@
     </ClInclude>
     <ClInclude Include="FPSControl.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseScene.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="ISceneChanger.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneMgr.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Task.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>scene\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>scene\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>scene\scenes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
