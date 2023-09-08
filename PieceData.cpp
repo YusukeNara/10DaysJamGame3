@@ -5,8 +5,13 @@
 #include <DxLib.h>
 #include <string>
 
+int PieceData::DRAWBASE_X;
+int PieceData::DRAWBASE_Y;
+
 PieceData::PieceData()
 {
+	DRAWBASE_X = 450 - (PIECE_SIZE * 3);
+	DRAWBASE_Y = 500;
 }
 
 PieceData::~PieceData()
@@ -18,12 +23,30 @@ void PieceData::Init(int x, int y)
 	posX = x;
 	posY = y;
 	color = PIECE_COLOR::PCOLOR_NONE;
+
+	int drawCenterX = DRAWBASE_X + posX * PIECE_SIZE;
+	int drawCenterY = DRAWBASE_Y - posY * PIECE_SIZE;
+
+	bezierEase.Init(
+		RVector3(drawCenterX, drawCenterY, 0),	//始点
+		RVector3(drawCenterX, drawCenterY, 0),		//終点
+		RVector3(drawCenterX, drawCenterY, 0),
+		10, Rv3Ease::RV3_EASE_TYPE::EASE_QUAD_IN);
 }
 
 void PieceData::Generate(int x, int y)
 {
 	posX = x;
 	posY = y;
+
+	int drawCenterX = DRAWBASE_X + posX * PIECE_SIZE;
+	int drawCenterY = DRAWBASE_Y - posY * PIECE_SIZE;
+
+	bezierEase.Init(
+		RVector3(drawCenterX, drawCenterY, 0),	//始点
+		RVector3(drawCenterX, drawCenterY, 0),		//終点
+		RVector3(drawCenterX, drawCenterY, 0),
+		10, Rv3Ease::RV3_EASE_TYPE::EASE_QUAD_IN);
 
 	int generateColor = NY_random::intrand_sl(4, 1);
 
@@ -33,16 +56,81 @@ void PieceData::Generate(int x, int y)
 void PieceData::Up()
 {
 	posY += 1;
+
+	int drawCenterX = DRAWBASE_X + posX * PIECE_SIZE;
+	int drawCenterY = DRAWBASE_Y - posY * PIECE_SIZE;
+
+	bezierEase.Init(
+		RVector3(drawCenterX, drawCenterY, 0),	//始点
+		RVector3(drawCenterX, drawCenterY, 0),		//終点
+		RVector3(drawCenterX, drawCenterY, 0),
+		10, Rv3Ease::RV3_EASE_TYPE::EASE_QUAD_IN);
 }
 
 void PieceData::Down()
 {
 }
 
-void PieceData::SetPos(int newX, int newY)
+void PieceData::RotatePiece(int newX, int newY)
 {
+	//イージング用に旧座標と新座標を保持する
+	oldPosX = posX;
+	oldPosY = posY;
 	posX = newX;
 	posY = newY;
+
+	int drawCenterX = DRAWBASE_X + posX * PIECE_SIZE;
+	int drawCenterY = DRAWBASE_Y - posY * PIECE_SIZE;
+	int drawOldCenterX = DRAWBASE_X + oldPosX * PIECE_SIZE;
+	int drawOldCenterY = DRAWBASE_Y - oldPosY * PIECE_SIZE;
+
+	int addX = 0;
+	int addY = 0;
+	//イージング方向に応じた設定
+	if (posX - oldPosX == 1 && posY - oldPosY == 0) {
+		addY = PIECE_SIZE / 2;
+	}
+	else if (posX - oldPosX == 0 && posY - oldPosY == 1) {
+		addX = PIECE_SIZE / 2;
+	}
+	else if (posX - oldPosX == -1 && posY - oldPosY == 0) {
+		addY = -PIECE_SIZE / 2;
+	}
+	else if (posX - oldPosX == 0 && posY - oldPosY == -1) {
+		addX = -PIECE_SIZE / 2;
+	}
+
+	int midX = (drawCenterX + drawOldCenterX) / 2;
+	int midY = (drawCenterY + drawOldCenterY) / 2;
+
+	bezierEase.Reset();
+
+
+	//イージング座標設定
+	bezierEase.Init(
+		RVector3(drawOldCenterX, drawOldCenterY, 0),	//始点
+		RVector3(drawCenterX, drawCenterY, 0),			//終点
+		RVector3(midX + addX, midY + addY, 0),			//イージング制御点
+		10, Rv3Ease::RV3_EASE_TYPE::EASE_QUAD_IN);
+
+	bezierEase.Play();
+}
+
+void PieceData::SetPos(int newX, int newY)
+{
+	oldPosX = posX;
+	oldPosY = posY;
+	posX = newX;
+	posY = newY;
+
+	int drawCenterX = DRAWBASE_X + posX * PIECE_SIZE;
+	int drawCenterY = DRAWBASE_Y - posY * PIECE_SIZE;
+
+	bezierEase.Init(
+		RVector3(drawCenterX, drawCenterY, 0),	//始点
+		RVector3(drawCenterX, drawCenterY, 0),		//終点
+		RVector3(drawCenterX, drawCenterY, 0),
+		10, Rv3Ease::RV3_EASE_TYPE::EASE_QUAD_IN);
 }
 
 void PieceData::Clear()
@@ -52,6 +140,11 @@ void PieceData::Clear()
 
 void PieceData::Draw()
 {
+	bezierEase.Update();
+
+	int easeX = bezierEase.nowPos().x;
+	int easeY = bezierEase.nowPos().y;
+
 	int c = 0;
 	//if (color == PIECE_COLOR::PCOLOR_NONE) { return; }
 
@@ -76,7 +169,11 @@ void PieceData::Draw()
 		break;
 	}
 
-	DrawCircle(DRAWBASE_X + posX * PIECE_SIZE, DRAWBASE_Y - posY * PIECE_SIZE, PIECE_SIZE / 2, c);
+
+	//描画
+	DrawCircle(easeX, easeY, (PIECE_SIZE - 8) / 2, c);
+
+
 }
 
 void PieceData::DisplayPieceInfo(int displayX, int displayY)
@@ -103,8 +200,11 @@ void PieceData::DisplayPieceInfo(int displayX, int displayY)
 		break;
 	}
 
-	DrawFormatString(displayX, displayY, GetColor(155, 155, 55), "x:%d y:%d %s", posX, posY, colortxt.c_str());
-
+	DrawFormatString(displayX, displayY, GetColor(255, 0, 0), "x:%d y:%d %s", posX, posY, colortxt.c_str());
+	DrawFormatString(displayX, displayY + 16, GetColor(255, 0, 0), "easemode %d easeTarget  X:%f Y:%f",
+		bezierEase.isEnded(),
+		bezierEase.nowPos().x,
+		bezierEase.nowPos().y);
 
 }
 

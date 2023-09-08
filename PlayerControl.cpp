@@ -30,10 +30,13 @@ void PlayerControl::UserControl()
 
 void PlayerControl::Draw()
 {
-	DrawBox(PieceData::DRAWBASE_X + selectX * 32 - 16,
-		PieceData::DRAWBASE_Y - selectY * 32 + 16,
-		PieceData::DRAWBASE_X + (selectX + 1) * 32 + 16,
-		PieceData::DRAWBASE_Y - (selectY + 1) * 32 - 16,
+	//ï`âÊç¿ïW
+
+
+	DrawBox(PieceData::DRAWBASE_X + selectX * (PieceData::PIECE_SIZE)-PieceData::PIECE_SIZE / 2,
+		PieceData::DRAWBASE_Y - selectY * (PieceData::PIECE_SIZE)+PieceData::PIECE_SIZE / 2,
+		PieceData::DRAWBASE_X + (selectX + 1) * (PieceData::PIECE_SIZE)+PieceData::PIECE_SIZE / 2,
+		PieceData::DRAWBASE_Y - (selectY + 1) * (PieceData::PIECE_SIZE)-PieceData::PIECE_SIZE / 2,
 		GetColor(255, 255, 255), false);
 
 

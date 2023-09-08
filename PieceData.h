@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RVector.h"
 
 enum class PIECE_COLOR
 {
@@ -28,6 +29,8 @@ public:
 	void Down();
 
 	//ピース座標設定
+	void RotatePiece(int newX, int newY);
+
 	void SetPos(int newX, int newY);
 
 	int GetY() { return posY; }
@@ -42,10 +45,14 @@ public:
 
 	PIECE_COLOR GetColorNum() { return color; }
 
-	static const int DRAWBASE_X = 354;
-	static const int DRAWBASE_Y = 500;
-
-	static const int PIECE_SIZE = 32;
+	//描画左端基準
+	static int DRAWBASE_X;
+	//描画下基準
+	static int DRAWBASE_Y;
+	//ピース描画サイズ
+	static const int PIECE_SIZE = 40;
+	//イージングフレーム数
+	static const int EASE_MOVE_TIME = 10;
 
 	// ==演算子をオーバーロード
 	bool operator==(const PieceData& r) const
@@ -61,6 +68,11 @@ public:
 private:
 	int posX = 0;
 	int posY = 0;
+	int oldPosX = 0;
+	int oldPosY = 0;
+
+	//ベジエイージング
+	Rv3Ease::Rv3Bezier3 bezierEase;
 
 	PIECE_COLOR color = PIECE_COLOR::PCOLOR_NONE;
 };

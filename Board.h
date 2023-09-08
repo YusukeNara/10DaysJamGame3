@@ -41,13 +41,13 @@ public:
 
 	void TimeControl();
 
-	static const int BOARD_WIDTH = 6;
-	static const int BOARD_HEIGHT = 11;
+	static const int BOARD_WIDTH = 8;
+	static const int BOARD_HEIGHT = 14;
 
 	int rotateX = 0, rotateY = 0;
 
 private:
-	std::array <std::array<PieceData, 6>, 11> boardData;
+	std::array <std::array<PieceData, BOARD_WIDTH>, BOARD_HEIGHT> boardData;
 
 	BoardStatus boardStatus;
 
@@ -56,7 +56,7 @@ private:
 	//フレームカウント
 	unsigned int flameCount = 0;
 	//生成間隔
-	unsigned int spawnTime = 600;
+	unsigned int generateRemain = 600;
 	//生成間隔の減少率
 	unsigned int spawnDifficlutyRate = 15;
 	//生成ペース下限

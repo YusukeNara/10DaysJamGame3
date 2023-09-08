@@ -147,6 +147,7 @@
     <ClCompile Include="NY_random.cpp" />
     <ClCompile Include="PieceData.cpp" />
     <ClCompile Include="PlayerControl.cpp" />
+    <ClCompile Include="RVector.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +162,7 @@
     <ClInclude Include="NY_random.h" />
     <ClInclude Include="PieceData.h" />
     <ClInclude Include="PlayerControl.h" />
+    <ClInclude Include="RVector.h" />
     <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="Task.h" />
   </ItemGroup>

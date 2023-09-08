@@ -29,7 +29,7 @@ void Board::Init()
 
 	level = 1;
 	flameCount = 0;
-	spawnTime = SPAWNTIME_MAX;
+	generateRemain = SPAWNTIME_MAX;
 
 	for (int i = 0; i < 3; i++) {
 		UpAndGenerate();
@@ -87,7 +87,7 @@ void Board::UpAndGenerate()
 	{
 		for (auto& bx : by) {
 			bx.Up();
-			if (bx.GetY() == 10 && bx.GetColorNum() != PIECE_COLOR::PCOLOR_NONE) {
+			if (bx.GetY() == BOARD_HEIGHT - 1 && bx.GetColorNum() != PIECE_COLOR::PCOLOR_NONE) {
 				boardStatus = BoardStatus::GAMEOVER;
 				break;
 			}
@@ -100,7 +100,7 @@ void Board::UpAndGenerate()
 	std::shift_right(boardData.begin(), boardData.end(), 1);
 
 	//最下段に新たな要素を代入する
-	std::array<PieceData, 6> initdata;
+	std::array<PieceData, BOARD_WIDTH> initdata;
 	boardData[0] = initdata;
 	
 	int x = 0;
@@ -140,22 +140,22 @@ void Board::RotatePiece(int selectX, int selectY)
 		boardData[selectY + 1][selectX] };
 
 		//左下->右下
-		rotateP[0].SetPos(selectX + 1, selectY);
+		rotateP[0].RotatePiece(selectX + 1, selectY);
 		boardData[selectY][selectX + 1] = rotateP[0];
 		//右下->右上
-		rotateP[1].SetPos(selectX + 1, selectY + 1);
+		rotateP[1].RotatePiece(selectX + 1, selectY + 1);
 		boardData[selectY + 1][selectX + 1] = rotateP[1];
 		//右上->左上
-		rotateP[2].SetPos(selectX, selectY + 1);
+		rotateP[2].RotatePiece(selectX, selectY + 1);
 		boardData[selectY + 1][selectX] = rotateP[2];
 		//左上->左下
-		rotateP[3].SetPos(selectX, selectY);
+		rotateP[3].RotatePiece(selectX, selectY);
 		boardData[selectY][selectX] = rotateP[3];
 	}
 
 	flame++;
 
-	if (flame > 5) {
+	if (flame > 10) {
 		boardStatus = BoardStatus::PROCESSING_FLOATCHECK;
 		flame = 0;
 	}
@@ -192,8 +192,8 @@ void Board::DebugDraw()
 	DrawFormatString(0, 64, GetColor(255, 255, 255), "R :  reset");
 
 	DrawFormatString(0, 96, GetColor(255, 255, 255), "score : %u", score);
-	DrawFormatString(0, 112, GetColor(255, 255, 255), "generate remain : %u", (spawnTime - flameCount) / 60u);
-	DrawFormatString(0, 128, GetColor(255, 255, 255), "generate rate : %u", spawnTime / 60u);
+	DrawFormatString(0, 112, GetColor(255, 255, 255), "generate remain : %u", (generateRemain - flameCount) / 60u);
+	DrawFormatString(0, 128, GetColor(255, 255, 255), "generate rate : %u", generateRemain / 60u);
 	DrawFormatString(0, 144, GetColor(255, 255, 255), "level : %u", level);
 	if (boardStatus == BoardStatus::GAMEOVER) {
 		DrawFormatString(0, 160, GetColor(255, 255, 255), "GAME OVER");
@@ -257,8 +257,8 @@ void Board::CheckMatch()
 		//スコアが既定値を超えた場合、レベルアップ
 		if (score > level * 10000) {
 			level++;
-			if (spawnTime > SPAWNTIME_MIN) {
-				spawnTime -= spawnDifficlutyRate;
+			if (generateRemain > SPAWNTIME_MIN) {
+				generateRemain -= spawnDifficlutyRate;
 			}
 		}
 	}
@@ -310,7 +310,6 @@ void Board::CheckFloat()
 					boardData[newY][x].SetPos(x, newY);
 					boardData[y][x].Clear();
 				}
-
 			}
 		}
 	}
@@ -333,8 +332,8 @@ void Board::TimeControl()
 
 	flameCount++;
 
-	if (flameCount > spawnTime) {
-		UpAndGenerate();
+	if (flameCount > generateRemain) {
+		//UpAndGenerate();
 	}
 
 }
