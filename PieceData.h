@@ -33,8 +33,10 @@ public:
 
 	void SetPos(int newX, int newY);
 
+	int GetX() { return posX; }
 	int GetY() { return posY; }
 
+	void DeleteReservation();
 	//ピース消滅
 	void Clear();
 
@@ -54,15 +56,18 @@ public:
 	//イージングフレーム数
 	static const int EASE_MOVE_TIME = 10;
 
-	// ==演算子をオーバーロード
+	// ==演算子をオーバーロード（同色のピースを等価演算子で判断する）
 	bool operator==(const PieceData& r) const
 	{
 		return color == r.color;
 	}
+	// !=演算子をオーバーロード（同色のピースを等価演算子で判断する）
 	bool operator!=(const PieceData& r) const
 	{
 		return !(color == r.color);
 	}
+
+	bool GetDeleteReserved() { return isDeleteReserved; }
 
 
 private:
@@ -70,6 +75,8 @@ private:
 	int posY = 0;
 	int oldPosX = 0;
 	int oldPosY = 0;
+	//消去される予定のピース（ピースを消すときの判定に使用しないフラグ）
+	int isDeleteReserved = false;
 
 	//ベジエイージング
 	Rv3Ease::Rv3Bezier3 bezierEase;

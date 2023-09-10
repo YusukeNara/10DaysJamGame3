@@ -9,6 +9,7 @@ enum class BoardStatus
 	PROCESSING_ROTATE,		//ピース回転
 	PROCESSING_FLOATCHECK,	//浮遊チェック
 	PROCESSING_MATCHCHECK,	//ピースマッチチェック
+	PRICESSING_SPECIALCHECK,
 	GAMEOVER,				//ゲームオーバー
 };
 
@@ -73,12 +74,20 @@ private:
 	//スコア倍率（連鎖で上昇）
 	float scoreScale = 1.0f;
 
+	//スペシャルマッチ演出再生用
+	int specialMatchPosX = 0;
+	int specialMatchPosY = 0;
+	const int SPTEXT_EASE_UP = 50;
+	Rv3Ease::Rv3Easing spTextEase;
 
 	//リソース
-	int fontHandle = 0;
+	int bigFontHandle = 0;
+	int smallFontHandle = 0;
 
 	//マス目描画
 	void DrawBoardGrid();
+
+	void PlaySpecialEase();
 
 };
 

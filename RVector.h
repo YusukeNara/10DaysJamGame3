@@ -162,6 +162,8 @@ namespace Rv3Ease {
 
 		bool IsEnd() { return isEnded; }
 
+		bool IsPlay() { return isplay; }
+
 	private:
 		//各種イージング関数
 

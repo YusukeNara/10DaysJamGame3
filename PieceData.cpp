@@ -11,7 +11,7 @@ int PieceData::DRAWBASE_Y;
 PieceData::PieceData()
 {
 	DRAWBASE_X = 450 - (PIECE_SIZE * 3);
-	DRAWBASE_Y = 500;
+	DRAWBASE_Y = 450;
 }
 
 PieceData::~PieceData()
@@ -159,9 +159,15 @@ void PieceData::SetPos(int newX, int newY)
 	bezierEase.Play();
 }
 
+void PieceData::DeleteReservation()
+{
+	isDeleteReserved = false;
+}
+
 void PieceData::Clear()
 {
 	color = PIECE_COLOR::PCOLOR_NONE;
+	isDeleteReserved = false;
 }
 
 void PieceData::Draw()
