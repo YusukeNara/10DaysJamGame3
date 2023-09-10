@@ -18,6 +18,10 @@ private:
 	int selectX = 0;
 	int selectY = 0;
 
+	const int SELECTER_WIDTH = 2;
+	const int SELECTER_LENGHT = 10;
+
+	int handle = 0;
 
 	//ボードにアクセスするポインタ
 	Board* board;

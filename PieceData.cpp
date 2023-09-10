@@ -189,7 +189,7 @@ void PieceData::Draw()
 		c = GetColor(100, 100, 255);
 		break;
 	case PIECE_COLOR::PCOLOR_WHITE:
-		c = GetColor(255, 255, 255);
+		c = GetColor(155, 155, 155);
 		break;
 	default:
 		break;

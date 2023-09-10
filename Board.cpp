@@ -36,7 +36,8 @@ void Board::Init()
 	}
 
 	//リソース読み込み
-	fontHandle = LoadFontDataToHandle("Resources/SmartFontUI.dft", 0);
+	fontHandle = CreateFontToHandle("03スマートフォントUI", 64, 9, DX_FONTTYPE_NORMAL);
+	//fontHandle = LoadFontDataToHandle("Resources/SmartFontUI.dft", 0);
 
 }
 
@@ -79,6 +80,17 @@ void Board::Draw()
 		if (y == 10) {
 			break;
 		}
+	}
+
+	DrawBoardGrid();
+
+	if (boardStatus == BoardStatus::GAMEOVER) {
+		SetFontSize(48);
+		SetFontThickness(9);
+		//真ん中にゲームオーバー表示
+		DrawStringToHandle(PieceData::DRAWBASE_X-64, 300, "GAME OVER", GetColor(255, 255, 255), fontHandle);
+		SetFontThickness(6);
+		SetFontSize(16);
 	}
 }
 
@@ -345,5 +357,39 @@ void Board::TimeControl()
 	if (flameCount > generateRemain) {
 		UpAndGenerate();
 	}
+
+}
+
+void Board::DrawBoardGrid()
+{
+	//横線
+	for (int i = 0; i < BOARD_HEIGHT; i++) {
+		int lx = PieceData::DRAWBASE_X - (PieceData::PIECE_SIZE / 2);
+		int rx = PieceData::DRAWBASE_X + (BOARD_WIDTH) * PieceData::PIECE_SIZE - (PieceData::PIECE_SIZE / 2);
+		int y = PieceData::DRAWBASE_Y - (PieceData::PIECE_SIZE * i) + (PieceData::PIECE_SIZE / 2);
+		int color = 0;
+		if (i == BOARD_HEIGHT - 1) {
+			color = GetColor(255, 0, 0);
+		}
+		else {
+			color = GetColor(255, 255, 255);
+		}
+
+		DrawLineAA(lx, y, rx, y, color);
+	}
+	//縦線
+	for (int j = 0; j < BOARD_WIDTH+1; j++) {
+		int ty = PieceData::DRAWBASE_Y - (PieceData::PIECE_SIZE * (BOARD_HEIGHT -2)) - (PieceData::PIECE_SIZE / 2);
+		int by = PieceData::DRAWBASE_Y + (PieceData::PIECE_SIZE / 2);
+		int x = PieceData::DRAWBASE_X + (PieceData::PIECE_SIZE * j) - (PieceData::PIECE_SIZE / 2);
+		int color = GetColor(255, 255, 255);
+		DrawLineAA(x, ty, x, by, color);
+	}
+
+
+
+
+
+
 
 }

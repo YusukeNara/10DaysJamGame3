@@ -44,7 +44,7 @@ public:
 	void TimeControl();
 
 	static const int BOARD_WIDTH = 8;
-	static const int BOARD_HEIGHT = 14;
+	static const int BOARD_HEIGHT = 11;
 
 	int rotateX = 0, rotateY = 0;
 
@@ -74,9 +74,11 @@ private:
 	float scoreScale = 1.0f;
 
 
-
 	//リソース
 	int fontHandle = 0;
+
+	//マス目描画
+	void DrawBoardGrid();
 
 };
 

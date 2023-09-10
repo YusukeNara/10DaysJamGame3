@@ -5,6 +5,8 @@
 void PlayerControl::Init(Board* board)
 {
 	this->board = board;
+
+	handle = LoadGraph("Resources/selecter.png");
 }
 
 void PlayerControl::UserControl()
@@ -32,12 +34,27 @@ void PlayerControl::Draw()
 {
 	//ï`âÊç¿ïW
 
+	float PI = 3.14f;
 
-	DrawBox(PieceData::DRAWBASE_X + selectX * (PieceData::PIECE_SIZE)-PieceData::PIECE_SIZE / 2,
-		PieceData::DRAWBASE_Y - selectY * (PieceData::PIECE_SIZE)+PieceData::PIECE_SIZE / 2,
-		PieceData::DRAWBASE_X + (selectX + 1) * (PieceData::PIECE_SIZE)+PieceData::PIECE_SIZE / 2,
-		PieceData::DRAWBASE_Y - (selectY + 1) * (PieceData::PIECE_SIZE)-PieceData::PIECE_SIZE / 2,
-		GetColor(255, 255, 255), false);
+	//for (int y = 0; y < 2; y++) {
+	//	float rotY = PI / (180 * y);
+	//	for (int x = 0; x < 2; x++) {
+	//		float rotX = PI / (180 * x);
+
+	//		//
+	//		int centerX = PieceData::DRAWBASE_X + (selectX + x) * (PieceData::PIECE_SIZE);
+	//		int centerY = PieceData::DRAWBASE_Y - (selectY + y) * (PieceData::PIECE_SIZE);
+	//		
+	//		DrawRotaGraph2(centerX, centerY, 40, 0, 1.0, rotX + rotY, handle, true);
+	//	}
+	//}
+
+	int lx = PieceData::DRAWBASE_X + selectX * (PieceData::PIECE_SIZE)-PieceData::PIECE_SIZE / 2;
+	int rx = PieceData::DRAWBASE_X + (selectX + 1) * (PieceData::PIECE_SIZE)+PieceData::PIECE_SIZE / 2;
+	int ty = PieceData::DRAWBASE_Y - selectY * (PieceData::PIECE_SIZE)+PieceData::PIECE_SIZE / 2;
+	int by = PieceData::DRAWBASE_Y - (selectY + 1) * (PieceData::PIECE_SIZE)-PieceData::PIECE_SIZE / 2;
+
+	DrawExtendGraph(lx, ty, rx, by, handle, true);
 
 
 }
