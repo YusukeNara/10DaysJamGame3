@@ -41,12 +41,20 @@ void PieceData::Generate(int x, int y)
 
 	int drawCenterX = DRAWBASE_X + posX * PIECE_SIZE;
 	int drawCenterY = DRAWBASE_Y - posY * PIECE_SIZE;
+	int drawOldCenterX = DRAWBASE_X + posX * PIECE_SIZE;
+	int drawOldCenterY = DRAWBASE_Y - (-1 * PIECE_SIZE);
+	int midX = (drawCenterX + drawOldCenterX) / 2;
+	int midY = (drawCenterY + drawOldCenterY) / 2;
 
 	bezierEase.Init(
-		RVector3(drawCenterX, drawCenterY, 0),	//始点
+		RVector3(drawOldCenterX, drawOldCenterY, 0),	//始点
 		RVector3(drawCenterX, drawCenterY, 0),		//終点
-		RVector3(drawCenterX, drawCenterY, 0),
+		RVector3(midX, midY, 0),
 		10, Rv3Ease::RV3_EASE_TYPE::EASE_QUAD_IN);
+
+	bezierEase.Reset();
+
+	bezierEase.Play();
 
 	int generateColor = NY_random::intrand_sl(4, 1);
 
@@ -55,16 +63,27 @@ void PieceData::Generate(int x, int y)
 
 void PieceData::Up()
 {
+	oldPosX = posX;
+	oldPosY = posY;
+
 	posY += 1;
 
 	int drawCenterX = DRAWBASE_X + posX * PIECE_SIZE;
 	int drawCenterY = DRAWBASE_Y - posY * PIECE_SIZE;
+	int drawOldCenterX = DRAWBASE_X + oldPosX * PIECE_SIZE;
+	int drawOldCenterY = DRAWBASE_Y - oldPosY * PIECE_SIZE;
+	int midX = (drawCenterX + drawOldCenterX) / 2;
+	int midY = (drawCenterY + drawOldCenterY) / 2;
 
 	bezierEase.Init(
-		RVector3(drawCenterX, drawCenterY, 0),	//始点
+		RVector3(drawOldCenterX, drawOldCenterY, 0),	//始点
 		RVector3(drawCenterX, drawCenterY, 0),		//終点
-		RVector3(drawCenterX, drawCenterY, 0),
+		RVector3(midX, midY, 0),
 		10, Rv3Ease::RV3_EASE_TYPE::EASE_QUAD_IN);
+
+	bezierEase.Reset();
+
+	bezierEase.Play();
 }
 
 void PieceData::Down()
@@ -105,7 +124,6 @@ void PieceData::RotatePiece(int newX, int newY)
 
 	bezierEase.Reset();
 
-
 	//イージング座標設定
 	bezierEase.Init(
 		RVector3(drawOldCenterX, drawOldCenterY, 0),	//始点
@@ -125,12 +143,20 @@ void PieceData::SetPos(int newX, int newY)
 
 	int drawCenterX = DRAWBASE_X + posX * PIECE_SIZE;
 	int drawCenterY = DRAWBASE_Y - posY * PIECE_SIZE;
+	int drawOldCenterX = DRAWBASE_X + oldPosX * PIECE_SIZE;
+	int drawOldCenterY = DRAWBASE_Y - oldPosY * PIECE_SIZE;
+	int midX = (drawCenterX + drawOldCenterX) / 2;
+	int midY = (drawCenterY + drawOldCenterY) / 2;
 
 	bezierEase.Init(
-		RVector3(drawCenterX, drawCenterY, 0),	//始点
+		RVector3(drawOldCenterX, drawOldCenterY, 0),	//始点
 		RVector3(drawCenterX, drawCenterY, 0),		//終点
-		RVector3(drawCenterX, drawCenterY, 0),
+		RVector3(midX, midY, 0),
 		10, Rv3Ease::RV3_EASE_TYPE::EASE_QUAD_IN);
+
+	bezierEase.Reset();
+
+	bezierEase.Play();
 }
 
 void PieceData::Clear()
@@ -146,7 +172,7 @@ void PieceData::Draw()
 	int easeY = bezierEase.nowPos().y;
 
 	int c = 0;
-	//if (color == PIECE_COLOR::PCOLOR_NONE) { return; }
+	if (color == PIECE_COLOR::PCOLOR_NONE) { return; }
 
 	switch (color)
 	{

@@ -34,11 +34,13 @@ public:
 	void RotatePiece(int selectX, int selectY);
 
 	void DebugDraw();
-
+	//特殊マッチチェック
+	void CheckSpecialMatch();
+	//マッチチェック
 	void CheckMatch();
-
+	//浮遊チェック
 	void CheckFloat();
-
+	//ゲーム時間
 	void TimeControl();
 
 	static const int BOARD_WIDTH = 8;
@@ -73,7 +75,8 @@ private:
 
 
 
-
+	//リソース
+	int fontHandle = 0;
 
 };
 

@@ -34,6 +34,10 @@ void Board::Init()
 	for (int i = 0; i < 3; i++) {
 		UpAndGenerate();
 	}
+
+	//リソース読み込み
+	fontHandle = LoadFontDataToHandle("Resources/SmartFontUI.dft", 0);
+
 }
 
 void Board::Update()
@@ -201,12 +205,18 @@ void Board::DebugDraw()
 
 }
 
+void Board::CheckSpecialMatch()
+{
+}
+
 void Board::CheckMatch()
 {
 	static int flame = 0;
 
 	//消去を行うピースを保持
 	std::vector<PieceData*> deletePieceBuff;
+	//消去するピースのまとまりを保持（コンボ用）
+	
 
 	static bool isMatchPiece = false;
 
@@ -315,7 +325,7 @@ void Board::CheckFloat()
 	}
 
 	flame++;
-	if (flame > 5) {
+	if (flame > 10) {
 		boardStatus = BoardStatus::PROCESSING_MATCHCHECK;
 		flame = 0;
 	}
@@ -333,7 +343,7 @@ void Board::TimeControl()
 	flameCount++;
 
 	if (flameCount > generateRemain) {
-		//UpAndGenerate();
+		UpAndGenerate();
 	}
 
 }
