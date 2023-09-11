@@ -40,6 +40,8 @@ void Board::Init()
 	smallFontHandle = CreateFontToHandle("03スマートフォントUI", 16, 6, DX_FONTTYPE_NORMAL);
 	//fontHandle = LoadFontDataToHandle("Resources/SmartFontUI.dft", 0);
 
+	pieceDeleteDirection.Init();
+
 }
 
 void Board::Update()
@@ -75,6 +77,8 @@ void Board::Update()
 		spTextEase.Reset();
 	}
 
+	pieceDeleteDirection.Update();
+
 }
 
 void Board::Draw()
@@ -107,6 +111,8 @@ void Board::Draw()
 			spTextEase.GetNowpos().y,
 			"STRAIGHT!", GetColor(255, 255, 255), bigFontHandle);
 	}
+
+	pieceDeleteDirection.Draw();
 
 }
 
@@ -237,6 +243,8 @@ void Board::CheckSpecialMatch()
 {
 
 	static int flame = 0;
+	//処理フレーム
+	const int EXECUTION_FRAME = 30;
 
 	//ストレートマッチフラグ
 	bool isMatchStraight = false;
@@ -413,6 +421,16 @@ void Board::CheckSpecialMatch()
 
 	//ピースを消去開始
 	for (auto& d : deletePieceBuff) {
+		//演出再生位置
+		int ease_posX = PieceData::DRAWBASE_X +
+			d->GetX() * PieceData::PIECE_SIZE +
+			PieceData::PIECE_SIZE / 2;
+		//演出再生位置
+		int ease_posY = PieceData::DRAWBASE_Y -
+			d->GetY() * PieceData::PIECE_SIZE -
+			PieceData::PIECE_SIZE / 2;
+		//演出再生
+		pieceDeleteDirection.PlayEase(ease_posX, ease_posY, 0, 0, EXECUTION_FRAME,5);
 		d->Clear();
 		//ピース1つにつき加算スコア増加
 		addScore += (baseScore * scoreScale);
@@ -458,6 +476,8 @@ void Board::CheckSpecialMatch()
 void Board::CheckMatch()
 {
 	static int flame = 0;
+	//処理フレーム
+	const int EXECUTION_FRAME = 30;
 
 	//消去を行うピースを保持
 	std::vector<PieceData*> deletePieceBuff;
@@ -518,6 +538,17 @@ void Board::CheckMatch()
 
 		//ピースを消去開始
 		for (auto& d : deletePieceBuff) {
+			//演出再生位置
+			int ease_posX = PieceData::DRAWBASE_X + 
+				d->GetX() * PieceData::PIECE_SIZE + 
+				PieceData::PIECE_SIZE / 2;
+			//演出再生位置
+			int ease_posY = PieceData::DRAWBASE_Y -
+				d->GetY() * PieceData::PIECE_SIZE -
+				PieceData::PIECE_SIZE / 2;
+			//演出再生
+			pieceDeleteDirection.PlayEase(ease_posX, ease_posY, 0, 0, EXECUTION_FRAME);
+
 			d->Clear();
 			//ピース1つにつき加算スコア増加
 			addScore += (baseScore * scoreScale);
@@ -535,7 +566,7 @@ void Board::CheckMatch()
 
 	flame++;
 
-	if (flame > 15) {
+	if (flame > EXECUTION_FRAME) {
 		//マッチしているピースがある場合は浮遊チェック
 		if (isMatchPiece) { 
 			boardStatus = BoardStatus::PROCESSING_FLOATCHECK; 

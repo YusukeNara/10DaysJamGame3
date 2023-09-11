@@ -1,5 +1,6 @@
 #pragma once
 #include "PieceData.h"
+#include "PieceDeleteDirection.h"
 
 #include <array>
 
@@ -83,6 +84,9 @@ private:
 	//リソース
 	int bigFontHandle = 0;
 	int smallFontHandle = 0;
+
+	//演出系
+	PieceDeleteDirection pieceDeleteDirection;
 
 	//マス目描画
 	void DrawBoardGrid();
