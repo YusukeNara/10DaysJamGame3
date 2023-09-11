@@ -161,7 +161,7 @@ void PieceData::SetPos(int newX, int newY)
 
 void PieceData::DeleteReservation()
 {
-	isDeleteReserved = false;
+	isDeleteReserved = true;
 }
 
 void PieceData::Clear()

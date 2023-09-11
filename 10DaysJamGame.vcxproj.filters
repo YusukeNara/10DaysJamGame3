@@ -19,18 +19,15 @@
     <Filter Include="scene\scenes">
       <UniqueIdentifier>{58980ef8-b56a-4203-941d-ebad20909774}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Direction">
+      <UniqueIdentifier>{4e9b4a6f-7e75-495e-8ce3-e3b4389a096e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system">
+      <UniqueIdentifier>{58f3f325-bf4f-4a7a-b30f-9a63c326779d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Board.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="PieceData.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Input.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerControl.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="NY_random.cpp">
@@ -63,18 +60,18 @@
     <ClCompile Include="RVector.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Board.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="PieceData.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerControl.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Board.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="PieceData.h">
-      <Filter>ソース ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Input.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerControl.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="NY_random.h">
@@ -106,6 +103,15 @@
     </ClInclude>
     <ClInclude Include="RVector.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="PieceData.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="Board.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerControl.h">
+      <Filter>system</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

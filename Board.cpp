@@ -235,13 +235,15 @@ void Board::DebugDraw()
 
 void Board::CheckSpecialMatch()
 {
+
 	static int flame = 0;
+
 	//ストレートマッチフラグ
 	bool isMatchStraight = false;
 	//ダイヤモンドマッチフラグ
-
+	bool isMatchDiamond = false;
 	//ビクトリーマッチフラグ
-	
+	bool isMatchVictory = false;
 	//マッチを確認
 	static bool isMatchPiece = false;
 
@@ -264,27 +266,31 @@ void Board::CheckSpecialMatch()
 				std::vector<PieceData*> rightMatchPiece;
 				//右で異なる色を見つけるor消去済検知までループ
 				for (int xx = x; xx < BOARD_WIDTH; xx++) {
-					if (boardData[y][x] != boardData[y][xx] 
-						|| boardData[y][xx].GetDeleteReserved()) { break; }
+					if (boardData[y][x] != boardData[y][xx]
+						|| boardData[y][xx].GetDeleteReserved()) {
+						break;
+					}
 					rightMatchPiece.push_back(&boardData[y][xx]);
 				}
 				//上で異なる色を見つけるor消去済検知までループ
 				for (int yy = y; yy < BOARD_HEIGHT; yy++) {
-					if (boardData[y][x] != boardData[yy][x] 
-						|| boardData[yy][x].GetDeleteReserved()) { break; }
+					if (boardData[y][x] != boardData[yy][x]
+						|| boardData[yy][x].GetDeleteReserved()) {
+						break;
+					}
 					upperMatchPiece.push_back(&boardData[yy][x]);
 				}
 
 				//それぞれ5つ以上ある場合、消去コンテナに保持
 				if (upperMatchPiece.size() >= 5) {
 					int count = 0;
-					for (auto& up : upperMatchPiece) { 
+					for (auto& up : upperMatchPiece) {
 						if (count == 0) {
 							specialMatchPosX = up->GetX();
 							specialMatchPosY = up->GetY();
 						}
 						up->DeleteReservation();
-						deletePieceBuff.push_back(up); 
+						deletePieceBuff.push_back(up);
 						count++;
 					}
 					isMatchPiece = true;
@@ -298,7 +304,7 @@ void Board::CheckSpecialMatch()
 							specialMatchPosY = right->GetY();
 						}
 						right->DeleteReservation();
-						deletePieceBuff.push_back(right); 
+						deletePieceBuff.push_back(right);
 						count++;
 					}
 					isMatchPiece = true;
@@ -310,12 +316,96 @@ void Board::CheckSpecialMatch()
 		}
 
 		//マッチしたらスキップする
-
+		if (isMatchStraight) {
+			
+		}
 
 		//ダイヤモンドチェック
-
+		for (int y = 0; y < BOARD_HEIGHT - 4; y++) {
+			//ダイヤモンドは端から検知しない
+			for (int x = 1; x < BOARD_WIDTH - 1; x++) {	//
+				if (boardData[y][x].GetColorNum() == PIECE_COLOR::PCOLOR_NONE) {
+					continue;
+				}
+				//消すピースのまとまりを保持
+				std::vector<PieceData*> matchPiece;
+				if (boardData[y][x] == boardData[y + 3][x] && 
+					boardData[y][x] == boardData[y + 2][x - 1] && 
+					boardData[y][x] == boardData[y + 1][x - 1] && 
+					boardData[y][x] == boardData[y + 2][x + 1] && 
+					boardData[y][x] == boardData[y + 1][x + 1]) {
+					//該当する場所を削除バッファに保存
+					matchPiece.push_back(&boardData[y][x]);
+					matchPiece.push_back(&boardData[y + 3][x]);
+					matchPiece.push_back(&boardData[y + 2][x - 1]);
+					matchPiece.push_back(&boardData[y + 2][x + 1]);
+					matchPiece.push_back(&boardData[y + 1][x - 1]);
+					matchPiece.push_back(&boardData[y + 1][x + 1]);
+					isMatchDiamond = true;
+				}
+				if (isMatchDiamond) {
+					isMatchPiece = true;
+					//同色のピースをすべて削除してループ抜ける
+					for (auto& group : matchPiece) {
+						group->DeleteReservation();
+						deletePieceBuff.push_back(group);
+					}
+					for (auto& py : boardData) {
+						for (auto& px : py) {
+							if (px == *deletePieceBuff[0] && !px.GetDeleteReserved()) {
+								deletePieceBuff.push_back(&px);
+							}
+						}
+					}
+					break;
+				}
+			}
+			if (isMatchDiamond) { break; }
+		}
 
 		//ビクトリーチェック
+		for (int y = 0; y < BOARD_HEIGHT - 3; y++) {
+			for (int x = 2; x < BOARD_WIDTH - 3; x++) {
+				if (boardData[y][x].GetColorNum() == PIECE_COLOR::PCOLOR_NONE) {
+					continue;
+				}
+				//上のピース情報保持
+				std::vector<PieceData*> ;
+
+				//消すピースのまとまりを保持
+				std::vector<PieceData*> matchPiece;
+				if (boardData[y][x] == boardData[y + 2][x - 2] &&
+					boardData[y][x] == boardData[y + 1][x - 1] &&
+					boardData[y][x] == boardData[y + 2][x + 2] &&
+					boardData[y][x] == boardData[y + 1][x + 1]) {
+					//該当する場所を削除バッファに保存
+					matchPiece.push_back(&boardData[y][x]);
+					matchPiece.push_back(&boardData[y + 2][x - 2]);
+					matchPiece.push_back(&boardData[y + 2][x + 2]);
+					matchPiece.push_back(&boardData[y + 1][x - 1]);
+					matchPiece.push_back(&boardData[y + 1][x + 1]);
+					isMatchVictory = true;
+				}
+				if (isMatchVictory) {
+					isMatchPiece = true;
+					//同色のピースをすべて削除してループ抜ける
+					for (auto& group : matchPiece) {
+						group->DeleteReservation();
+						deletePieceBuff.push_back(group);
+					}
+					for (auto& py : boardData) {
+						for (auto& px : py) {
+							if (px == *deletePieceBuff[0] && !px.GetDeleteReserved()) {
+								deletePieceBuff.push_back(&px);
+							}
+						}
+					}
+					break;
+				}
+
+			}
+			if (isMatchVictory) { break; }
+		}
 	}
 
 
@@ -328,7 +418,18 @@ void Board::CheckSpecialMatch()
 		addScore += (baseScore * scoreScale);
 	}
 
+	//該当するスペシャルマッチに応じた演出再生
 	if (isMatchStraight) {
+		addScore += 5000;
+		//ストレート演出再生
+		PlaySpecialEase();
+	}
+	if (isMatchDiamond) {
+		addScore += 5000;
+		//ストレート演出再生
+		PlaySpecialEase();
+	}
+	if (isMatchVictory) {
 		addScore += 5000;
 		//ストレート演出再生
 		PlaySpecialEase();
@@ -361,7 +462,7 @@ void Board::CheckMatch()
 	//消去を行うピースを保持
 	std::vector<PieceData*> deletePieceBuff;
 	//消去するピースのまとまりを保持（コンボ用）
-	
+	std::vector<std::vector<PieceData*>> deletePieceGroupBuff;
 
 	static bool isMatchPiece = false;
 
@@ -397,11 +498,19 @@ void Board::CheckMatch()
 
 				//それぞれ3つ以上ある場合、消去コンテナに保持
 				if (upperMatchPiece.size() >= 3) {
-					for (auto& up : upperMatchPiece) { deletePieceBuff.push_back(up); }
+					for (auto& up : upperMatchPiece) { 
+						deletePieceBuff.push_back(up); 
+						up->DeleteReservation();
+					}
+
 					isMatchPiece = true;
 				}
 				if (rightMatchPiece.size() >= 3) {
-					for (auto& right : rightMatchPiece) { deletePieceBuff.push_back(right); }
+					for (auto& right : rightMatchPiece) { 
+						right->DeleteReservation();
+						deletePieceBuff.push_back(right); 
+					}
+					
 					isMatchPiece = true;
 				}
 			}
