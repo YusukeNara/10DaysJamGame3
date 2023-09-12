@@ -31,7 +31,7 @@ void PieceDeleteTextDrawer::ComboText::Draw()
 void PieceDeleteTextDrawer::Init()
 {
 	comboTextHandle = CreateFontToHandle("03スマートフォントUI", 16, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
-	specialTextHandle = CreateFontToHandle("03スマートフォントUI", 32, -1, DX_FONTTYPE_ANTIALIASING_EDGE_16X16);
+	specialTextHandle = CreateFontToHandle("03スマートフォントUI", 32, -1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 
 	specialTextEase.Init(Rv3Ease::RV3_EASE_TYPE::EASE_CUBIC_OUT,
 		RVector3(400, 300, 0),

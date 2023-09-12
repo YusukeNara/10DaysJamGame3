@@ -54,7 +54,7 @@ void UI::DrawFlame()
 	DrawBox(631, 0, 900, 506, GetColor(100, 100, 100), true);
 	DrawBox(0, 0, 900, 70, GetColor(100, 100, 100), true);
 	DrawBox(0, 470, 900, 506, GetColor(100, 100, 100), true);*/
-	DrawBoxAA(20, 20, 300, 490, GetColor(255, 255, 255), false, 4);
+	DrawBoxAA(20, 20, 280, 490, GetColor(255, 255, 255), false, 4);
 }
 
 void UI::DrawScore(int score)
@@ -62,19 +62,19 @@ void UI::DrawScore(int score)
 	if (isRendition == true) {
 		DrawScoreRend();
 	}
-	DrawFormatStringToHandle(20, 120, whiteColor, fontData[1], "score : %.8d", score);
+	DrawFormatStringToHandle(30, 120, whiteColor, fontData[1], "score : %.8d", score);
 
 }
 
 void UI::DrawTime(int spawnRemain)
 {
-	DrawFormatStringToHandle(20, 144, whiteColor, fontData[1], "spawnRemain : %u", spawnRemain);
+	DrawFormatStringToHandle(30, 144, whiteColor, fontData[1], "spawnRemain : %u", spawnRemain);
 	//DrawFormatString(0, 128, whiteColor, "generate rate : %u", spawnTime / 60u);
 }
 
 void UI::DrawLevel(int level)
 {
-	DrawFormatStringToHandle(20, 168, whiteColor, fontData[1], "level : %u", level);
+	DrawFormatStringToHandle(30, 168, whiteColor, fontData[1], "level : %u", level);
 	if (isLevelUp == true) {
 		DrawLevUpRend();
 	}
@@ -84,11 +84,11 @@ void UI::DrawScoreRend()
 {
 	if (isScoRend) {
 		if (scoreRenditionTime % 2) {
-			DrawFormatStringToHandle(120, 96 - scoreRenditionTime, whiteColor, fontData[1], "+%d", addScore);
+			DrawFormatStringToHandle(130, 96 - scoreRenditionTime, whiteColor, fontData[1], "+%d", addScore);
 		}
 		else
 		{
-			DrawFormatStringToHandle(120, 96 - scoreRenditionTime, renditionColor, fontData[1], "+%d", addScore);
+			DrawFormatStringToHandle(130, 96 - scoreRenditionTime, renditionColor, fontData[1], "+%d", addScore);
 		}
 	}
 
@@ -98,10 +98,10 @@ void UI::DrawLevUpRend()
 {
 	if (isLevRend) {
 		if (levelUpRenditionTime % 2) {
-			DrawFormatStringToHandle(120, 192 + levelUpRenditionTime, whiteColor, fontData[1], "LEVEL UP!");
+			DrawFormatStringToHandle(130, 192 + levelUpRenditionTime, whiteColor, fontData[1], "LEVEL UP!");
 		}
 		else {
-			DrawFormatStringToHandle(120, 192 + levelUpRenditionTime, renditionColor, fontData[1], "LEVEL UP!");
+			DrawFormatStringToHandle(130, 192 + levelUpRenditionTime, renditionColor, fontData[1], "LEVEL UP!");
 		}
 	}
 }
