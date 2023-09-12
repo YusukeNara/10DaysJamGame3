@@ -55,6 +55,8 @@ private:
 	std::array <std::array<PieceData, BOARD_WIDTH>, BOARD_HEIGHT> boardData;
 
 	BoardStatus boardStatus;
+	UI ui;
+
 
 	//Œ»İ‚ÌƒŒƒxƒ‹
 	unsigned int level = 1;

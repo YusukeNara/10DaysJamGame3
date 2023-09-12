@@ -27,7 +27,7 @@ void Board::Init()
 	}
 
 	boardStatus = BoardStatus::WAIT;
-
+	ui.Init();
 	level = 1;
 	flameCount = 0;
 	generateRemain = SPAWNTIME_MAX;
@@ -93,6 +93,10 @@ void Board::Draw()
 		}
 	}
 
+	ui.DrawFlame();
+	ui.DrawLevel(level);
+	ui.DrawScore(score);
+	ui.DrawTime((generateRemain - flameCount) / 60u);
 	DrawBoardGrid();
 
 	if (boardStatus == BoardStatus::GAMEOVER) {
@@ -215,7 +219,7 @@ void Board::DebugDraw()
 		y++;
 	}
 
-	DrawFormatString(0, 0, GetColor(255, 255, 255), "x %d  y %d", mouseX, mouseY);
+	/*DrawFormatString(0, 0, GetColor(255, 255, 255), "x %d  y %d", mouseX, mouseY);
 	DrawFormatString(0, 16, GetColor(255, 255, 255), "WASD :   box move");
 	DrawFormatString(0, 32, GetColor(255, 255, 255), "space :  piece rotate (反時計回り)");
 	DrawFormatString(0, 48, GetColor(255, 255, 255), "U :  piece generate");
@@ -224,7 +228,7 @@ void Board::DebugDraw()
 	DrawFormatString(0, 96, GetColor(255, 255, 255), "score : %u", score);
 	DrawFormatString(0, 112, GetColor(255, 255, 255), "generate remain : %u", (generateRemain - flameCount) / 60u);
 	DrawFormatString(0, 128, GetColor(255, 255, 255), "generate rate : %u", generateRemain / 60u);
-	DrawFormatString(0, 144, GetColor(255, 255, 255), "level : %u", level);
+	DrawFormatString(0, 144, GetColor(255, 255, 255), "level : %u", level);*/
 	if (boardStatus == BoardStatus::GAMEOVER) {
 		DrawFormatString(0, 160, GetColor(255, 255, 255), "GAME OVER");
 	}
@@ -554,11 +558,17 @@ void Board::CheckMatch()
 			//ピース1つにつき加算スコア増加
 			addScore += (baseScore * scoreScale);
 		}
+		int oldScore;
+		oldScore = score;
 		score += addScore;
+		if (oldScore != score) {
+			ui.AddScore(addScore);
+		}
 
 		//スコアが既定値を超えた場合、レベルアップ
 		if (score > level * 10000) {
 			level++;
+			ui.LevelUp();
 			if (generateRemain > SPAWNTIME_MIN) {
 				generateRemain -= spawnDifficlutyRate;
 			}
