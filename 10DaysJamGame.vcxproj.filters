@@ -70,7 +70,10 @@
       <Filter>system</Filter>
     </ClCompile>
     <ClCompile Include="PieceDeleteDirection.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>Direction</Filter>
+    </ClCompile>
+    <ClCompile Include="PieceDeleteTextDrawer.cpp">
+      <Filter>Direction</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -117,7 +120,10 @@
       <Filter>system</Filter>
     </ClInclude>
     <ClInclude Include="PieceDeleteDirection.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>Direction</Filter>
+    </ClInclude>
+    <ClInclude Include="PieceDeleteTextDrawer.h">
+      <Filter>Direction</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

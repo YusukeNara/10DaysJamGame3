@@ -69,6 +69,8 @@ public:
 
 	bool GetDeleteReserved() { return isDeleteReserved; }
 
+	int GetDrawCenterX() { return DRAWBASE_X + posX * PIECE_SIZE; };
+	int GetDrawCenterY() { return DRAWBASE_Y - posY * PIECE_SIZE; };
 
 private:
 	int posX = 0;

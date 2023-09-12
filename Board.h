@@ -1,6 +1,7 @@
 #pragma once
 #include "PieceData.h"
 #include "PieceDeleteDirection.h"
+#include "PieceDeleteTextDrawer.h"
 
 #include <array>
 
@@ -74,12 +75,10 @@ private:
 	unsigned int baseScore = 100;
 	//スコア倍率（連鎖で上昇）
 	float scoreScale = 1.0f;
+	//コンボ
+	int combo = 0;
 
 	//スペシャルマッチ演出再生用
-	int specialMatchPosX = 0;
-	int specialMatchPosY = 0;
-	const int SPTEXT_EASE_UP = 50;
-	Rv3Ease::Rv3Easing spTextEase;
 
 	//リソース
 	int bigFontHandle = 0;
@@ -87,11 +86,14 @@ private:
 
 	//演出系
 	PieceDeleteDirection pieceDeleteDirection;
+	PieceDeleteTextDrawer pieceDeleteTextDrawer;
 
+	//マス目のベースを保存
+
+	//マス線の太さ
+	const int LINE_WIDTH = 1;
 	//マス目描画
 	void DrawBoardGrid();
-
-	void PlaySpecialEase();
 
 };
 
