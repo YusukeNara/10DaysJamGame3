@@ -5,6 +5,7 @@
 #include <DxLib.h>
 
 
+
 Board::Board()
 {
 }
@@ -72,6 +73,8 @@ void Board::Update()
 	default:
 		break;
 	}
+
+	ui.Update();
 
 	//‰‰oŒnXV
 	pieceDeleteDirection.Update();

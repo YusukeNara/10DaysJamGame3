@@ -50,8 +50,8 @@ void UI::LevelUp()
 
 void UI::DrawFlame()
 {
-	DrawBox(0, 0, 310, 506, GetColor(100, 100, 100), true);
-	DrawBox(631, 0, 900, 506, GetColor(100, 100, 100), true);
+	DrawBox(0, 0, 290, 506, GetColor(100, 100, 100), true);
+	DrawBox(611, 0, 900, 506, GetColor(100, 100, 100), true);
 	DrawBox(0, 0, 900, 70, GetColor(100, 100, 100), true);
 	DrawBox(0, 470, 900, 506, GetColor(100, 100, 100), true);
 }

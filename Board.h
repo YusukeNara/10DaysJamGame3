@@ -2,6 +2,7 @@
 #include "PieceData.h"
 #include "PieceDeleteDirection.h"
 #include "PieceDeleteTextDrawer.h"
+#include "UI.h"
 
 #include <array>
 
