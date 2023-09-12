@@ -10,7 +10,7 @@ int PieceData::DRAWBASE_Y;
 
 PieceData::PieceData()
 {
-	DRAWBASE_X = 450 - (PIECE_SIZE * 3);
+	DRAWBASE_X = 450 - (PIECE_SIZE * 3) - (PIECE_SIZE / 2);
 	DRAWBASE_Y = 450;
 }
 

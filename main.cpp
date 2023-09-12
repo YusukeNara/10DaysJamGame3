@@ -8,6 +8,8 @@
 
 #include "FPSControl.h"
 
+#include <wingdi.h>
+
 // ウィンドウのタイトルに表示する文字列
 const char TITLE[] = "GAMEJAM";
 
@@ -45,7 +47,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetWindowSizeExtendRate(1.0);
 
 	// 画面の背景色を設定する
-	SetBackgroundColor(0x00, 0x00, 0x00);
+	SetBackgroundColor(55, 0x00, 55);
 
 	// DXlibの初期化
 	if (DxLib_Init() == -1) { return -1; }
@@ -60,7 +62,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	mgr.Initialize();
 	FPSControl fps;
 	fps.FpsControll_Initialize();
-
+	//フォントデータ一時的に追加
+	AddFontResourceEx("Resources/03スマートフォントUI.otf", FR_PRIVATE, NULL);
 
 	// ゲームループ
 	while (1)

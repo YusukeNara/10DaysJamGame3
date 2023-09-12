@@ -155,12 +155,12 @@ void UI::DebugDraw(int mouseX, int mouseY)
 {
 	//DrawFormatStringToHandle(0, 0, whiteColor, fontData[1], "x %d  y %d", mouseX, mouseY);
 	//DrawFormatStringToHandle(0, 24, whiteColor, fontData[1], "WASD :   box move");
-	//DrawFormatStringToHandle(0, 48, whiteColor, fontData[1], "space :  piece rotate (”½ŽžŒv‰ñ‚è)");
+	//DrawFormatStringToHandle(0, 48, whiteColor, fontData[1], "space :  piece rotate (ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½)");
 	//DrawFormatStringToHandle(0, 72, whiteColor, fontData[1], "U :  piece generate");
 	//DrawFormatStringToHandle(0, 96, whiteColor, fontData[1], "R :  reset");
 	//DrawFormatStringToHandle(0, 0, whiteColor, "x %d  y %d", mouseX, mouseY);
 	/*DrawFormatString(0, 16, whiteColor, "WASD :   box move");
-	DrawFormatString(0, 32, whiteColor, "space :  piece rotate (”½ŽžŒv‰ñ‚è)");
+	DrawFormatString(0, 32, whiteColor, "space :  piece rotate (ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½)");
 	DrawFormatString(0, 48, whiteColor, "U :  piece generate");
 	DrawFormatString(0, 64, whiteColor, "R :  reset");*/
 }

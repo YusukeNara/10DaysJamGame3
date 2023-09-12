@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <DxLib.h>
 
+
+
 Board::Board()
 {
 }
@@ -41,7 +43,7 @@ void Board::Init()
 	//fontHandle = LoadFontDataToHandle("Resources/SmartFontUI.dft", 0);
 
 	pieceDeleteDirection.Init();
-
+	pieceDeleteTextDrawer.Init();
 }
 
 void Board::Update()
@@ -71,13 +73,12 @@ void Board::Update()
 	default:
 		break;
 	}
-	ui.Update();
-	spTextEase.Update();
-	if (spTextEase.IsEnd()) {
-		spTextEase.Reset();
-	}
 
+	ui.Update();
+
+	//演出系更新
 	pieceDeleteDirection.Update();
+	pieceDeleteTextDrawer.Update();
 
 }
 
@@ -110,14 +111,8 @@ void Board::Draw()
 		SetFontSize(16);
 	}
 
-	if (spTextEase.IsPlay()) {
-		DrawStringToHandle(spTextEase.GetNowpos().x,
-			spTextEase.GetNowpos().y,
-			"STRAIGHT!", GetColor(255, 255, 255), bigFontHandle);
-	}
-
 	pieceDeleteDirection.Draw();
-
+	pieceDeleteTextDrawer.Draw();
 }
 
 void Board::UpAndGenerate()
@@ -248,7 +243,7 @@ void Board::CheckSpecialMatch()
 
 	static int flame = 0;
 	//処理フレーム
-	const int EXECUTION_FRAME = 30;
+	const int EXECUTION_FRAME = 60;
 
 	//ストレートマッチフラグ
 	bool isMatchStraight = false;
@@ -297,10 +292,6 @@ void Board::CheckSpecialMatch()
 				if (upperMatchPiece.size() >= 5) {
 					int count = 0;
 					for (auto& up : upperMatchPiece) {
-						if (count == 0) {
-							specialMatchPosX = up->GetX();
-							specialMatchPosY = up->GetY();
-						}
 						up->DeleteReservation();
 						deletePieceBuff.push_back(up);
 						count++;
@@ -311,10 +302,6 @@ void Board::CheckSpecialMatch()
 				if (rightMatchPiece.size() >= 5) {
 					int count = 0;
 					for (auto& right : rightMatchPiece) {
-						if (count == 0) {
-							specialMatchPosX = right->GetX();
-							specialMatchPosY = right->GetY();
-						}
 						right->DeleteReservation();
 						deletePieceBuff.push_back(right);
 						count++;
@@ -377,7 +364,7 @@ void Board::CheckSpecialMatch()
 
 		//ビクトリーチェック
 		for (int y = 0; y < BOARD_HEIGHT - 3; y++) {
-			for (int x = 2; x < BOARD_WIDTH - 3; x++) {
+			for (int x = 2; x < BOARD_WIDTH - 2; x++) {
 				if (boardData[y][x].GetColorNum() == PIECE_COLOR::PCOLOR_NONE) {
 					continue;
 				}
@@ -444,37 +431,41 @@ void Board::CheckSpecialMatch()
 	if (isMatchStraight) {
 		addScore += 5000;
 		//ストレート演出再生
-		PlaySpecialEase();
+		pieceDeleteTextDrawer.DrawSpecialText(0);
+		combo++;
 	}
 	if (isMatchDiamond) {
 		addScore += 5000;
 		//ストレート演出再生
-		PlaySpecialEase();
+		pieceDeleteTextDrawer.DrawSpecialText(1);
+		combo++;
 	}
 	if (isMatchVictory) {
 		addScore += 5000;
 		//ストレート演出再生
-		PlaySpecialEase();
+		pieceDeleteTextDrawer.DrawSpecialText(2);
+		combo++;
 	}
 
 	
 	flame++;
-	if (flame == 15) {
-		//マッチしているピースがある場合は浮遊チェック
-		if (isMatchPiece) {
-			boardStatus = BoardStatus::PROCESSING_FLOATCHECK;
-			//スコア倍率増加
-			scoreScale += 0.5f;
-		}
-		//そうでないなら通常のマッチチェック
-		else {
-			boardStatus = BoardStatus::PROCESSING_MATCHCHECK;
-			scoreScale = 1.0f;
-		}
+	//マッチしてるピースがない
+	if (!isMatchPiece) {
+		boardStatus = BoardStatus::PROCESSING_MATCHCHECK;
+		scoreScale = 1.0f;
+		flame = 0;
+		isMatchPiece = false;
+	}
+	//マッチしている
+	else if(flame >= EXECUTION_FRAME){
+		boardStatus = BoardStatus::PROCESSING_FLOATCHECK;
+		//スコア倍率増加
+		scoreScale += 0.5f;
 
 		flame = 0;
 		isMatchPiece = false;
 	}
+
 }
 
 void Board::CheckMatch()
@@ -522,19 +513,32 @@ void Board::CheckMatch()
 
 				//それぞれ3つ以上ある場合、消去コンテナに保持
 				if (upperMatchPiece.size() >= 3) {
+					//コンボ加算
+					combo++;
 					for (auto& up : upperMatchPiece) { 
 						deletePieceBuff.push_back(up); 
 						up->DeleteReservation();
 					}
+					//コンボ表示
+					pieceDeleteTextDrawer.DrawComboText((*upperMatchPiece.begin())->GetDrawCenterX(),
+						(*upperMatchPiece.begin())->GetDrawCenterY(),
+						EXECUTION_FRAME,
+						combo);
 
 					isMatchPiece = true;
 				}
 				if (rightMatchPiece.size() >= 3) {
+					//コンボ加算
+					combo++;
 					for (auto& right : rightMatchPiece) { 
 						right->DeleteReservation();
 						deletePieceBuff.push_back(right); 
 					}
-					
+					//コンボ表示
+					pieceDeleteTextDrawer.DrawComboText((*rightMatchPiece.begin())->GetDrawCenterX(),
+						(*rightMatchPiece.begin())->GetDrawCenterY(),
+						EXECUTION_FRAME,
+						combo);
 					isMatchPiece = true;
 				}
 			}
@@ -575,19 +579,19 @@ void Board::CheckMatch()
 	}
 
 	flame++;
-
-	if (flame > EXECUTION_FRAME) {
-		//マッチしているピースがある場合は浮遊チェック
-		if (isMatchPiece) { 
-			boardStatus = BoardStatus::PROCESSING_FLOATCHECK; 
-			//スコア倍率増加
-			scoreScale += 0.2f;
-		}
-		//そうでないなら待機
-		else { 
-			boardStatus = BoardStatus::WAIT;
-			scoreScale = 1.0f;
-		}
+	//マッチしてるピースがない
+	if (!isMatchPiece) {
+		boardStatus = BoardStatus::WAIT;
+		scoreScale = 1.0f;
+		combo = 0;
+		flame = 0;
+		isMatchPiece = false;
+	}
+	//マッチしている
+	else if (flame >= EXECUTION_FRAME) {
+		boardStatus = BoardStatus::PROCESSING_FLOATCHECK;
+		//スコア倍率増加
+		scoreScale += 0.5f;
 
 		flame = 0;
 		isMatchPiece = false;
@@ -651,6 +655,8 @@ void Board::TimeControl()
 
 void Board::DrawBoardGrid()
 {
+
+
 	//横線
 	for (int i = 0; i < BOARD_HEIGHT; i++) {
 		int lx = PieceData::DRAWBASE_X - (PieceData::PIECE_SIZE / 2);
@@ -658,40 +664,35 @@ void Board::DrawBoardGrid()
 		int y = PieceData::DRAWBASE_Y - (PieceData::PIECE_SIZE * i) + (PieceData::PIECE_SIZE / 2);
 		int color = 0;
 		if (i == BOARD_HEIGHT - 1) {
-			color = GetColor(255, 0, 0);
+			color = GetColor(255, 100, 100);
 		}
 		else {
-			color = GetColor(255, 255, 255);
+			color = GetColor(155, 0, 155);
 		}
-
-		DrawLineAA(lx, y, rx, y, color);
+		int LW = LINE_WIDTH;
+		if (i == 0 || i == BOARD_HEIGHT - 1) {
+			LW = LW + 1;
+		}
+		
+		DrawBoxAA(lx, y - LW, rx, y + LW, color, true);
 	}
 	//縦線
-	for (int j = 0; j < BOARD_WIDTH+1; j++) {
+	for (int j = 0; j < BOARD_WIDTH + 1; j++) {
 		int ty = PieceData::DRAWBASE_Y - (PieceData::PIECE_SIZE * (BOARD_HEIGHT -2)) - (PieceData::PIECE_SIZE / 2);
 		int by = PieceData::DRAWBASE_Y + (PieceData::PIECE_SIZE / 2);
 		int x = PieceData::DRAWBASE_X + (PieceData::PIECE_SIZE * j) - (PieceData::PIECE_SIZE / 2);
-		int color = GetColor(255, 255, 255);
-		DrawLineAA(x, ty, x, by, color);
+		int color = GetColor(155, 0, 155);
+		int LW = LINE_WIDTH;
+		if (j == 0 || j == BOARD_WIDTH) {
+			LW = LW + 1;
+		}
+
+		DrawBoxAA(x - LW, ty, x + LW, by, color, true);
 	}
 
+	//マスのチェック柄
 
 
 
-
-
-
-}
-
-void Board::PlaySpecialEase()
-{
-	spTextEase.Init(Rv3Ease::RV3_EASE_TYPE::EASE_LERP,
-		RVector3(300, 300, 0),
-		RVector3(300, 200, 0),
-		30);
-
-	spTextEase.Reset();
-
-	spTextEase.Play();
 
 }
