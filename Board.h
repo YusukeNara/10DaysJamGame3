@@ -3,6 +3,7 @@
 #include "PieceDeleteDirection.h"
 #include "PieceDeleteTextDrawer.h"
 #include "UI.h"
+#include "ScoreManager.h"
 
 #include <array>
 
@@ -78,9 +79,9 @@ private:
 	//生成間隔
 	unsigned int generateRemain = 600;
 	//生成間隔の減少率
-	unsigned int spawnDifficlutyRate = 30;
+	unsigned int spawnDifficlutyRate = 15;
 	//生成ペース下限
-	const unsigned int SPAWNTIME_MIN = 150;
+	const unsigned int SPAWNTIME_MIN = 300;
 	//生成ペース初期値
 	const unsigned int SPAWNTIME_MAX = 600;
 
@@ -109,6 +110,15 @@ private:
 	const int LINE_WIDTH = 1;
 	//マス目描画
 	void DrawBoardGrid();
+
+	//ゲーム画面
+	int gameSceneGraph = 0;
+	//ゲーム画面アルファ値
+	Rv3Ease::Rv3Easing alphaEase;
+
+	//スコア
+	ScoreManager scoreMgr;
+
 
 };
 

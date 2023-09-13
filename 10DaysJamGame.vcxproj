@@ -151,6 +151,7 @@
     <ClCompile Include="PlayerControl.cpp" />
     <ClCompile Include="RVector.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
+    <ClCompile Include="ScoreManager.cpp" />
     <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +170,7 @@
     <ClInclude Include="PlayerControl.h" />
     <ClInclude Include="RVector.h" />
     <ClInclude Include="SceneMgr.h" />
+    <ClInclude Include="ScoreManager.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="UI.h" />
   </ItemGroup>

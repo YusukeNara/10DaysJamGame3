@@ -49,6 +49,13 @@ void Board::Init()
 
 	pieceDeleteDirection.Init();
 	pieceDeleteTextDrawer.Init();
+
+	scoreMgr.Init();
+
+	alphaEase.Init(Rv3Ease::RV3_EASE_TYPE::EASE_CUBIC_IN, RVector3(255, 0, 0), RVector3(100, 0, 0), 60);
+	alphaEase.Reset();
+	
+	score = 0;
 }
 
 void Board::Update()
@@ -77,6 +84,8 @@ void Board::Update()
 		CheckMatch();
 		break;
 	case BoardStatus::GAMEOVER:
+		alphaEase.Play();
+		scoreMgr.StartScoreDraw(score, level);
 		break;
 	default:
 		break;
@@ -88,8 +97,11 @@ void Board::Update()
 	ui.Update();
 
 	//演出系更新
+	alphaEase.Update();
 	pieceDeleteDirection.Update();
 	pieceDeleteTextDrawer.Update();
+	
+	scoreMgr.Update();
 
 #ifdef  _DEBUG
 	
@@ -102,6 +114,9 @@ void Board::Update()
 
 void Board::Draw()
 {
+	gameSceneGraph = MakeScreen(900, 506, TRUE);
+	SetDrawScreen(gameSceneGraph);
+
 	int y = 0;
 	for (auto& by : boardData)
 	{
@@ -120,17 +135,23 @@ void Board::Draw()
 	ui.DrawTime((generateRemain - flameCount) / 60u);
 	DrawBoardGrid();
 
-	if (boardStatus == BoardStatus::GAMEOVER) {
-		SetFontSize(48);
-		SetFontThickness(9);
-		//真ん中にゲームオーバー表示
-		DrawStringToHandle(PieceData::DRAWBASE_X-64, 300, "GAME OVER", GetColor(255, 255, 255), bigFontHandle);
-		SetFontThickness(6);
-		SetFontSize(16);
-	}
-
 	pieceDeleteDirection.Draw();
 	pieceDeleteTextDrawer.Draw();
+
+	SetDrawScreen(DX_SCREEN_BACK);
+
+	if (boardStatus == BoardStatus::GAMEOVER) {
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, alphaEase.GetNowpos().x);
+	}
+	else {
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
+	}
+	DrawGraph(0, 0, gameSceneGraph, TRUE);
+	DeleteGraph(gameSceneGraph);
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
+	scoreMgr.Draw();
+
 }
 
 void Board::UpAndGenerate(bool isNoWait)
@@ -403,20 +424,6 @@ void Board::DebugDraw()
 			x++;
 		}
 		y++;
-	}
-
-	/*DrawFormatString(0, 0, GetColor(255, 255, 255), "x %d  y %d", mouseX, mouseY);
-	DrawFormatString(0, 16, GetColor(255, 255, 255), "WASD :   box move");
-	DrawFormatString(0, 32, GetColor(255, 255, 255), "space :  piece rotate (反時計回り)");
-	DrawFormatString(0, 48, GetColor(255, 255, 255), "U :  piece generate");
-	DrawFormatString(0, 64, GetColor(255, 255, 255), "R :  reset");
-
-	DrawFormatString(0, 96, GetColor(255, 255, 255), "score : %u", score);
-	DrawFormatString(0, 112, GetColor(255, 255, 255), "generate remain : %u", (generateRemain - flameCount) / 60u);
-	DrawFormatString(0, 128, GetColor(255, 255, 255), "generate rate : %u", generateRemain / 60u);
-	DrawFormatString(0, 144, GetColor(255, 255, 255), "level : %u", level);*/
-	if (boardStatus == BoardStatus::GAMEOVER) {
-		DrawFormatString(0, 160, GetColor(255, 255, 255), "GAME OVER");
 	}
 
 }
@@ -980,19 +987,19 @@ bool Board::CheckMatch3Active(PIECE_COLOR color)
 
 	case PIECE_COLOR::PCOLOR_YELLOW:
 
-		if (level > 5) { result = isMatch3Active[4]; }
+		if (level >= 5) { result = isMatch3Active[4]; }
 		else { result = false; }
 		break;
 	case PIECE_COLOR::PCOLOR_SKY:
-		if (level > 5) { result = isMatch3Active[5]; }
+		if (level >= 5) { result = isMatch3Active[5]; }
 		else { result = false; }
 		break;
 	case PIECE_COLOR::PCOLOR_PURPLE:
-		if (level > 5) { result = isMatch3Active[6]; }
+		if (level >= 5) { result = isMatch3Active[6]; }
 		else { result = false; }
 		break;
 	case PIECE_COLOR::PCOLOR_BLACK:
-		if (level > 10) { result = isMatch3Active[7]; }
+		if (level >= 10) { result = isMatch3Active[7]; }
 		else { result = false; }
 		break;
 	default:

@@ -23,7 +23,9 @@ public:
 
     PlayerControl player;
 
-
+    //ゲーム画面本体を描画するハンドル
+    
+    //スコア描画
 
 };
 

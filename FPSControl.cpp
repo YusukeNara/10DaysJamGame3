@@ -25,7 +25,7 @@ bool FPSControl::FpsControll_Update()
 
 void FPSControl::FpsControll_Draw()
 {
-    DrawFormatString(700, 0, GetColor(255, 255, 255), "%.1f", mFps);
+    //DrawFormatString(700, 0, GetColor(255, 255, 255), "%.1f", mFps);
 }
 
 void FPSControl::FpsControll_Wait()
