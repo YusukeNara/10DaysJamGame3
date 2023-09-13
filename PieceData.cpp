@@ -12,6 +12,8 @@ PieceData::PieceData()
 {
 	DRAWBASE_X = 450 - (PIECE_SIZE * 3) - (PIECE_SIZE / 2);
 	DRAWBASE_Y = 450;
+
+	LoadDivGraph("Resources/pieces.png", 8, 8, 1, 32, 32, graphHandles.data());
 }
 
 PieceData::~PieceData()
@@ -34,7 +36,7 @@ void PieceData::Init(int x, int y)
 		10, Rv3Ease::RV3_EASE_TYPE::EASE_QUAD_IN);
 }
 
-void PieceData::Generate(int x, int y)
+void PieceData::Generate(int x, int y,PIECE_COLOR color)
 {
 	posX = x;
 	posY = y;
@@ -56,9 +58,16 @@ void PieceData::Generate(int x, int y)
 
 	bezierEase.Play();
 
-	int generateColor = NY_random::intrand_sl(4, 1);
+	int generateColor = 0;
 
-	color = static_cast<PIECE_COLOR>(generateColor);
+	if (color == PIECE_COLOR::PCOLOR_NONE) {
+		generateColor = NY_random::intrand_sl(8, 1);
+	}
+	else {
+		generateColor = int(color);
+	}
+
+	this->color = static_cast<PIECE_COLOR>(generateColor);
 }
 
 void PieceData::Up()
@@ -170,7 +179,7 @@ void PieceData::Clear()
 	isDeleteReserved = false;
 }
 
-void PieceData::Draw()
+void PieceData::Draw(bool isEnable)
 {
 	bezierEase.Update();
 
@@ -186,26 +195,49 @@ void PieceData::Draw()
 		c = GetColor(55, 55, 55);
 		break;
 	case PIECE_COLOR::PCOLOR_RED:
-		c = GetColor(255, 100, 100);
+		useHandle = graphHandles[0];
 		break;
 	case PIECE_COLOR::PCOLOR_GREEM:
-		c = GetColor(100, 255, 100);
+		useHandle = graphHandles[3];
 		break;
 	case PIECE_COLOR::PCOLOR_BLUE:
-		c = GetColor(100, 100, 255);
+		useHandle = graphHandles[1];
 		break;
 	case PIECE_COLOR::PCOLOR_WHITE:
-		c = GetColor(155, 155, 155);
+		useHandle = graphHandles[7];
 		break;
+	case PIECE_COLOR::PCOLOR_YELLOW:
+		useHandle = graphHandles[4];
+		break;
+	case PIECE_COLOR::PCOLOR_SKY:
+		useHandle = graphHandles[2];
+		break;
+	case PIECE_COLOR::PCOLOR_PURPLE:
+		useHandle = graphHandles[5];
+		break;
+	case PIECE_COLOR::PCOLOR_BLACK:
+		useHandle = graphHandles[6];
+		break;
+
 	default:
 		break;
 	}
 
+	int lx = easeX - (PIECE_SIZE / 2) + 4;
+	int rx = easeX + (PIECE_SIZE / 2) - 4;
+	int ty = easeY - (PIECE_SIZE / 2) + 4;
+	int by = easeY + (PIECE_SIZE / 2) - 4;
 
-	//•`‰æ
-	DrawCircle(easeX, easeY, (PIECE_SIZE - 8) / 2, c);
+	if (isEnable) {
+		alpha = 255;
+	}
+	else {
+		alpha = 100;
+	}
 
-
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+	DrawExtendGraph(lx, ty, rx, by, useHandle, TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
 }
 
 void PieceData::DisplayPieceInfo(int displayX, int displayY)

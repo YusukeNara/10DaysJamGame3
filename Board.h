@@ -9,6 +9,7 @@
 enum class BoardStatus
 {
 	WAIT,
+	PROCESSING_GENERATE,	//生成
 	PROCESSING_ROTATE,		//ピース回転
 	PROCESSING_FLOATCHECK,	//浮遊チェック
 	PROCESSING_MATCHCHECK,	//ピースマッチチェック
@@ -30,7 +31,7 @@ public:
 	void Draw();
 
 	//ピース上昇
-	void UpAndGenerate();
+	void UpAndGenerate(bool isNoWait = false);
 
 	void StartPieceRotate(int selectX, int selectY);
 
@@ -47,6 +48,15 @@ public:
 	//ゲーム時間
 	void TimeControl();
 
+	//すべてのマッチ3を有効化
+	void ActiveMatch3(bool isEnforce = false);
+	//マッチ3有効化
+	void EnableMatch3(PIECE_COLOR color);
+	//マッチ3を無効化
+	void DisableMatch3Active(PIECE_COLOR color);
+	//マッチ3のフラグを確認
+	bool CheckMatch3Active(PIECE_COLOR color);
+
 	static const int BOARD_WIDTH = 8;
 	static const int BOARD_HEIGHT = 11;
 
@@ -58,6 +68,8 @@ private:
 	BoardStatus boardStatus;
 	UI ui;
 
+	//3マッチのアクティブフラグ配列
+	std::array<bool, 8> isMatch3Active;
 
 	//現在のレベル
 	unsigned int level = 1;
@@ -66,7 +78,7 @@ private:
 	//生成間隔
 	unsigned int generateRemain = 600;
 	//生成間隔の減少率
-	unsigned int spawnDifficlutyRate = 15;
+	unsigned int spawnDifficlutyRate = 30;
 	//生成ペース下限
 	const unsigned int SPAWNTIME_MIN = 150;
 	//生成ペース初期値

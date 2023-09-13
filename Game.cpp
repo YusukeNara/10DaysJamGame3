@@ -21,7 +21,7 @@ void Game::Update() {
 
 	player.UserControl();
 	if (Input::IsKeyTrigger(KEY_INPUT_U)) {
-		board.UpAndGenerate();
+		board.UpAndGenerate(true);
 	}
 	if (Input::IsKeyTrigger(KEY_INPUT_R)) {
 		board.Init();
