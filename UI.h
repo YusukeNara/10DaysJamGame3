@@ -21,6 +21,7 @@ public:
 	void DrawLevUpRend();
 	void DrawGameOver();
 	void DrawChangeIn();
+	void DrawChangeOut();
 
 	void AddScoreRendition();
 	void LevelUpRendition();

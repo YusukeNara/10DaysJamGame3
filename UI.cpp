@@ -119,16 +119,14 @@ void UI::DrawGameOver()
 
 void UI::DrawChangeIn()
 {
-	DrawBox(900 - (changeSceneTime * 15), 0, 1800 - (changeSceneTime * 30), 506, GetColor(200, 200, 200), true);
-	DrawBox(900, 506, 1800 - (changeSceneTime * 30), 0, GetColor(0, 0, 0), true);
-	DrawRotaGraph( 980 - (changeSceneTime * 15), 150, 2, 0, pieceData[0], true);
-	DrawRotaGraph(1100 - (changeSceneTime * 15), 260, 2, 0, pieceData[1], true);
-	DrawRotaGraph(1000 - (changeSceneTime * 15), 400, 2, 0, pieceData[2], true);
-	DrawRotaGraph(1300 - (changeSceneTime * 15), 300, 2, 0, pieceData[3], true);
-	DrawRotaGraph(1660 - (changeSceneTime * 15), 200, 2, 0, pieceData[4], true);
-	DrawRotaGraph(1400 - (changeSceneTime * 15), 460, 2, 0, pieceData[5], true);
-	DrawRotaGraph(1500 - (changeSceneTime * 15), 100, 2, 0, pieceData[6], true);
-	DrawRotaGraph(1700 - (changeSceneTime * 15), 360, 2, 0, pieceData[7], true);
+	DrawBox(900 - (changeSceneTime * 15), 0, 1800 - (changeSceneTime * 30), 506, GetColor(100, 100, 100), true);
+	DrawBox(900, 0, 1800 - (changeSceneTime * 30), 506, GetColor(0, 0, 0), true);
+}
+
+void UI::DrawChangeOut()
+{
+	DrawBox(0, 0, 900 - (changeSceneTime * 15), 506, GetColor(100, 100, 100), true);
+	DrawBox(0, 0, 900 - (changeSceneTime * 30), 506, GetColor(0, 0, 0), true);
 }
 
 void UI::AddScoreRendition()
