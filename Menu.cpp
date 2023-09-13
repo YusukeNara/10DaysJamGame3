@@ -10,7 +10,8 @@ void Menu::Initialize() {
 	fontHandle[0] = CreateFontToHandle("03SmartFontUI", 48, -1, DX_FONTTYPE_ANTIALIASING);
 	fontHandle[1] = CreateFontToHandle("03SmartFontUI", 52, -1, DX_FONTTYPE_ANTIALIASING);
 	renditionTime = 0;
-	//piece[0] = LoadGraph();
+	LoadDivGraph("Resources/pieces.png", 8, 8, 1, 32, 32, piece, false);
+
 	ui.Init();
 	sceneChange = false;
 }
@@ -42,9 +43,14 @@ void Menu::Draw() {
 		DrawFormatStringToHandle(354, 298, GetColor(255, 255, 255), fontHandle[1], "スタート");
 	}
 	//DrawFormatString(200, 400, GetColor(255, 255, 255), "a");
-	DrawRotaGraph(400, 450, 1, PI / rotationTime, piece[0], true, false);
-	DrawRotaGraph(200, 400, 1, PI / rotationTime, piece[0], true, false);
-	DrawRotaGraph(160, 200, 1, PI / rotationTime,piece[0], true, false);
+	DrawRotaGraph(400, 450, 2, PI / 180 * (rotationTime * 3), piece[0], true, false);
+	DrawRotaGraph(200, 400, 2, PI / 180 * (rotationTime * 3), piece[1], true, false);
+	DrawRotaGraph(160, 200, 2, PI / 180 * (rotationTime * 3), piece[2], true, false);
+	DrawRotaGraph(700, 300, 2, PI / 180 * (rotationTime * 3), piece[3], true, false);
+	DrawRotaGraph(600, 450, 2, PI / 180 * (rotationTime * 3), piece[4], true, false);
+	DrawRotaGraph(300, 250, 2, PI / 180 * (rotationTime * 3), piece[5], true, false);
+	DrawRotaGraph(500, 250, 2, PI / 180 * (rotationTime * 3), piece[6], true, false);
+	DrawRotaGraph(800, 200, 2, PI / 180 * (rotationTime * 3), piece[7], true, false);
 	
 	if (sceneChange) {
 		ui.DrawChangeIn();
