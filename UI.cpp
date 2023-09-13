@@ -13,6 +13,7 @@ void UI::Init()
 	addScore = 0;
 	scoreRenditionTime = 0;
 	levelUpRenditionTime = 0;
+	changeSceneTime = 0;
 	isLevelUp = false;
 	isRendition = false;
 
@@ -21,7 +22,12 @@ void UI::Init()
 	for (int i = 0; i < fontQuantity; i++) {
 		fontData[i] = 0;
 	}
+	for (int i = 0; i < pieceCount; i++) {
+		pieceData[i] = 0;
+	}
+
 	CreateFontData();
+	CreateResourceData();
 }
 
 void UI::Update()
@@ -111,6 +117,20 @@ void UI::DrawGameOver()
 	DrawFormatStringToHandle(0, 80, whiteColor, fontData[2], "GAME OVER");
 }
 
+void UI::DrawChangeIn()
+{
+	DrawBox(900 - (changeSceneTime * 15), 0, 1800 - (changeSceneTime * 30), 506, GetColor(200, 200, 200), true);
+	DrawBox(900, 506, 1800 - (changeSceneTime * 30), 0, GetColor(0, 0, 0), true);
+	DrawRotaGraph( 980 - (changeSceneTime * 15), 150, 2, 0, pieceData[0], true);
+	DrawRotaGraph(1100 - (changeSceneTime * 15), 260, 2, 0, pieceData[1], true);
+	DrawRotaGraph(1000 - (changeSceneTime * 15), 400, 2, 0, pieceData[2], true);
+	DrawRotaGraph(1300 - (changeSceneTime * 15), 300, 2, 0, pieceData[3], true);
+	DrawRotaGraph(1660 - (changeSceneTime * 15), 200, 2, 0, pieceData[4], true);
+	DrawRotaGraph(1400 - (changeSceneTime * 15), 460, 2, 0, pieceData[5], true);
+	DrawRotaGraph(1500 - (changeSceneTime * 15), 100, 2, 0, pieceData[6], true);
+	DrawRotaGraph(1700 - (changeSceneTime * 15), 360, 2, 0, pieceData[7], true);
+}
+
 void UI::AddScoreRendition()
 {
 	scoreRenditionTime++;
@@ -135,11 +155,31 @@ void UI::LevelUpRendition()
 	}
 }
 
+void UI::ChangeSceneIn(ISceneChanger* mSceneChanger)
+{
+	if (changeSceneTime < 60) {
+		changeSceneTime++;
+	}
+	if (changeSceneTime >= 60) {
+		mSceneChanger->ChangeScene(eScene_Game);
+	}
+}
+
+void UI::ChangeSceneOut()
+{
+}
+
 void UI::CreateFontData()
 {
 	fontData[0] = CreateFontToHandle(NULL, -1, -1);
 	fontData[1] = CreateFontToHandle("03SmartFontUI", 24, -1, DX_FONTTYPE_ANTIALIASING);
 	fontData[2] = CreateFontToHandle("03SmartFontUI", 64, -1, DX_FONTTYPE_ANTIALIASING);
+}
+
+void UI::CreateResourceData()
+{
+	LoadDivGraph("Resources/pieces.png", 8, 8, 1, 32, 32, pieceData,false);
+
 }
 
 void UI::Finalize()

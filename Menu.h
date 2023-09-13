@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseScene.h"
+#include "UI.h"
 
 //メニュー画面クラス
 class Menu : public BaseScene {
@@ -19,7 +20,10 @@ private:
 
     int piece[8];
 
+    bool sceneChange;
 private:
+    UI ui;
+
     //フォントハンドル
     static const int fontQuantity = 1;
     float PI = 3.14159;

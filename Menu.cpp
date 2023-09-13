@@ -11,12 +11,17 @@ void Menu::Initialize() {
 	fontHandle[1] = CreateFontToHandle("03SmartFontUI", 52, -1, DX_FONTTYPE_ANTIALIASING);
 	renditionTime = 0;
 	//piece[0] = LoadGraph();
+	ui.Init();
+	sceneChange = false;
 }
 
 //更新
 void Menu::Update() {
 	if (Input::IsKeyTrigger(KEY_INPUT_SPACE)) {
-		mSceneChanger->ChangeScene(eScene_Game);
+		sceneChange = true;
+	}
+	if (sceneChange) {
+		ui.ChangeSceneIn(mSceneChanger);
 	}
 	renditionTime++;
 	rotationTime++;
@@ -36,6 +41,12 @@ void Menu::Draw() {
 	else {
 		DrawFormatStringToHandle(354, 298, GetColor(255, 255, 255), fontHandle[1], "スタート");
 	}
-	DrawFormatString(200, 400, GetColor(255, 255, 255), "a");
-	DrawRotaGraph(400, 450, 1, PI / rotationTime,piece[0], true, false);
+	//DrawFormatString(200, 400, GetColor(255, 255, 255), "a");
+	DrawRotaGraph(400, 450, 1, PI / rotationTime, piece[0], true, false);
+	DrawRotaGraph(200, 400, 1, PI / rotationTime, piece[0], true, false);
+	DrawRotaGraph(160, 200, 1, PI / rotationTime,piece[0], true, false);
+	
+	if (sceneChange) {
+		ui.DrawChangeIn();
+	}
 }

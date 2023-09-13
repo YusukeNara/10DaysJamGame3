@@ -1,5 +1,7 @@
 #pragma once
 #include <DxLib.h>
+#include "BaseScene.h"
+
 class UI
 {
 public:
@@ -18,13 +20,17 @@ public:
 	void DrawScoreRend();
 	void DrawLevUpRend();
 	void DrawGameOver();
+	void DrawChangeIn();
 
 	void AddScoreRendition();
 	void LevelUpRendition();
 
+	void ChangeSceneIn(ISceneChanger* mSceneChanger);
+	void ChangeSceneOut();
+
 	//init
 	void CreateFontData();
-
+	void CreateResourceData();
 	//fin
 	void Finalize();
 
@@ -35,7 +41,9 @@ private:
 	int time;
 	int scoreRenditionTime;
 	int levelUpRenditionTime;
+	int changeSceneTime;
 	static const int fontQuantity = 3;
+	static const int pieceCount = 8;
 
 	int renditionColor;
 	int whiteColor;
@@ -46,5 +54,6 @@ private:
 	bool isLevRend;
 
 	int fontData[fontQuantity];
+	int pieceData[pieceCount];
 };
 
