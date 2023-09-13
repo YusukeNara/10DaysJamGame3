@@ -47,7 +47,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetWindowSizeExtendRate(1.0);
 
 	// ‰æ–Ê‚Ì”wŒiF‚ğİ’è‚·‚é
-	SetBackgroundColor(55, 0x00, 55);
+	SetBackgroundColor(10, 0x00, 25);
 
 	// DXlib‚Ì‰Šú‰»
 	if (DxLib_Init() == -1) { return -1; }

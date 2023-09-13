@@ -232,7 +232,7 @@ void PieceData::Draw(bool isEnable)
 		alpha = 255;
 	}
 	else {
-		alpha = 100;
+		alpha = 200;
 	}
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
