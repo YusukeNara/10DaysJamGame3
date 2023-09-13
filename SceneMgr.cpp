@@ -24,7 +24,6 @@ void SceneMgr::Finalize() {
 void SceneMgr::Update() {
     if (mNextScene != eScene_None) {    //次のシーンがセットされていたら
         mScene->Finalize();//現在のシーンの終了処理を実行
-        delete mScene;
         switch (mNextScene) {       //シーンによって処理を分岐
         case eScene_Menu:        //次の画面がメニューなら
             mScene = (BaseScene*) new Menu(this);   //メニュー画面のインスタンスを生成する
