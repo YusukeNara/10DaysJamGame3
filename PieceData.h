@@ -2,6 +2,8 @@
 
 #include "RVector.h"
 
+#include <array>
+
 enum class PIECE_COLOR
 {
 	PCOLOR_NONE,
@@ -9,6 +11,10 @@ enum class PIECE_COLOR
 	PCOLOR_GREEM,
 	PCOLOR_BLUE,
 	PCOLOR_WHITE,
+	PCOLOR_YELLOW,
+	PCOLOR_SKY,
+	PCOLOR_PURPLE,
+	PCOLOR_BLACK,
 };
 
 class PieceData
@@ -21,7 +27,7 @@ public:
 	void Init(int x, int y);
 
 	//ピースを生成
-	void Generate(int x,int y);
+	void Generate(int x, int y, PIECE_COLOR color = PIECE_COLOR::PCOLOR_NONE);
 
 	//ピースを上昇
 	void Up();
@@ -41,7 +47,7 @@ public:
 	void Clear();
 
 	//描画
-	void Draw();
+	void Draw(bool isEnable);
 
 	void DisplayPieceInfo(int displayX, int displayY);
 
@@ -82,6 +88,13 @@ private:
 
 	//ベジエイージング
 	Rv3Ease::Rv3Bezier3 bezierEase;
+
+	//画像ハンドル
+	std::array<int, 8> graphHandles;
+	int useHandle = 0;
+	std::array<int, 8> disableHandle;
+
+	int alpha = 255;
 
 	PIECE_COLOR color = PIECE_COLOR::PCOLOR_NONE;
 };

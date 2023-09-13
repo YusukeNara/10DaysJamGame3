@@ -1,10 +1,11 @@
 #include "Board.h"
 
+#include "Input.h"
 #include <vector>
 #include <algorithm>
 #include <DxLib.h>
 
-
+#include "NY_random.h"
 
 Board::Board()
 {
@@ -33,8 +34,12 @@ void Board::Init()
 	flameCount = 0;
 	generateRemain = SPAWNTIME_MAX;
 
-	for (int i = 0; i < 3; i++) {
-		UpAndGenerate();
+	for (int i = 0; i < 5; i++) {
+		UpAndGenerate(true);
+	}
+
+	for (auto& m : isMatch3Active) {
+		m = true;
 	}
 
 	//リソース読み込み
@@ -56,6 +61,9 @@ void Board::Update()
 	{
 	case BoardStatus::WAIT:
 		break;
+	case BoardStatus::PROCESSING_GENERATE:
+		UpAndGenerate();
+		break;
 	case BoardStatus::PROCESSING_ROTATE:
 		RotatePiece(rotateX, rotateY);
 		break;
@@ -74,11 +82,21 @@ void Board::Update()
 		break;
 	}
 
+	//すべてのマッチ3が無効化されたら再度有効化
+	ActiveMatch3();
+
 	ui.Update();
 
 	//演出系更新
 	pieceDeleteDirection.Update();
 	pieceDeleteTextDrawer.Update();
+
+#ifdef  _DEBUG
+	
+	if (Input::IsKeyTrigger(KEY_INPUT_L)) { level++; }
+
+#endif //  _DEBUG
+
 
 }
 
@@ -88,7 +106,7 @@ void Board::Draw()
 	for (auto& by : boardData)
 	{
 		for (auto& bx : by) {
-			bx.Draw();
+			bx.Draw(CheckMatch3Active(bx.GetColorNum()));
 		}
 		y++;
 		if (y == 10) {
@@ -115,39 +133,204 @@ void Board::Draw()
 	pieceDeleteTextDrawer.Draw();
 }
 
-void Board::UpAndGenerate()
+void Board::UpAndGenerate(bool isNoWait)
 {
 	if (boardStatus == BoardStatus::GAMEOVER) { return; }
 
-	//ピースの座標データを上昇させる
-	for (auto& by : boardData)
-	{
-		for (auto& bx : by) {
-			bx.Up();
-			if (bx.GetY() == BOARD_HEIGHT - 1 && bx.GetColorNum() != PIECE_COLOR::PCOLOR_NONE) {
-				boardStatus = BoardStatus::GAMEOVER;
-				break;
+	static int frame = 0;
+
+	if (frame == 0) {
+		//ピースの座標データを上昇させる
+		for (auto& by : boardData)
+		{
+			for (auto& bx : by) {
+				bx.Up();
+				if (bx.GetY() == BOARD_HEIGHT - 1 && bx.GetColorNum() != PIECE_COLOR::PCOLOR_NONE) {
+
+
+					boardStatus = BoardStatus::GAMEOVER;
+					break;
+				}
 			}
+		}
+
+		//このとき天井（非表示の11列目）を超えるピースが存在する場合ゲームオーバーフラグ発生
+
+		//ピースデータを右シフトする（上昇と同義）
+		std::shift_right(boardData.begin(), boardData.end(), 1);
+
+		//最下段に新たな要素を代入する
+		std::array<PieceData, BOARD_WIDTH> initdata;
+		boardData[0] = initdata;
+
+		//ボード上のピースの数
+		std::array<int, 8> pcolorCount{ 0,0,0,0,0,0,0,0 };
+
+		for (auto& y : boardData) {
+			//PCOLOR_NUMの順番に配列に保存
+			pcolorCount[0] += std::count_if(y.begin(), y.end(), [](PieceData p) {return p.GetColorNum() == PIECE_COLOR::PCOLOR_RED; });
+			pcolorCount[1] += std::count_if(y.begin(), y.end(), [](PieceData p) {return p.GetColorNum() == PIECE_COLOR::PCOLOR_GREEM; });
+			pcolorCount[2] += std::count_if(y.begin(), y.end(), [](PieceData p) {return p.GetColorNum() == PIECE_COLOR::PCOLOR_BLUE; });
+			pcolorCount[3] += std::count_if(y.begin(), y.end(), [](PieceData p) {return p.GetColorNum() == PIECE_COLOR::PCOLOR_WHITE; });
+			pcolorCount[4] += std::count_if(y.begin(), y.end(), [](PieceData p) {return p.GetColorNum() == PIECE_COLOR::PCOLOR_YELLOW; });
+			pcolorCount[5] += std::count_if(y.begin(), y.end(), [](PieceData p) {return p.GetColorNum() == PIECE_COLOR::PCOLOR_SKY; });
+			pcolorCount[6] += std::count_if(y.begin(), y.end(), [](PieceData p) {return p.GetColorNum() == PIECE_COLOR::PCOLOR_PURPLE; });
+			pcolorCount[7] += std::count_if(y.begin(), y.end(), [](PieceData p) {return p.GetColorNum() == PIECE_COLOR::PCOLOR_BLACK; });
+		}
+
+		//一番少ないピース番号を保持
+
+		std::array<int, 8>::iterator itr;
+		if (level < 5) {
+			itr = std::min_element(pcolorCount.begin(), pcolorCount.end() - 4);
+		}
+		else if (level < 10) {
+			itr = std::min_element(pcolorCount.begin(), pcolorCount.end() - 1);
+		}
+		else {
+			itr = std::min_element(pcolorCount.begin(), pcolorCount.end());
+		}
+		int minPiece = int(std::distance(pcolorCount.begin(), itr));
+
+
+		int x = 0;
+		for (auto& b : boardData[0]) {
+			//レベルに応じて生成するピースが異なる
+			if (level < 5) {
+				int colorNum = NY_random::intrand_sl(4, 1);
+				const int MIN_PIECE_GENERATE_RATE = 75;
+				if (NY_random::intrand_sl(100, 0) < MIN_PIECE_GENERATE_RATE) {
+					//ボード内で最も少ないピースを生成
+					colorNum = minPiece + 1;
+					//ただし同色ルールは適用
+					//上左で同色を生成しない
+					if (x == 0) {
+						//上2マス両方が同色のときは再度生成
+						while (PIECE_COLOR(colorNum) == boardData[1][x].GetColorNum() && PIECE_COLOR(colorNum) == boardData[2][x].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(4, 1);
+						}
+					}
+					else {
+						while (PIECE_COLOR(colorNum) == boardData[0][x - 1].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(4, 1);
+						}
+					}
+				}
+				else {
+					if (x == 0) {
+						//上2マス両方が同色のときは再度生成
+						while (PIECE_COLOR(colorNum) == boardData[1][x].GetColorNum() && PIECE_COLOR(colorNum) == boardData[2][x].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(4, 1);
+						}
+					}
+					else {
+						while (PIECE_COLOR(colorNum) == boardData[0][x - 1].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(4, 1);
+						}
+					}
+				}
+				b.Generate(x, 0, PIECE_COLOR(colorNum));
+			}
+			// ------------------------------------------------------------------------------------------ //
+			else if (level < 10) {
+				int colorNum = 0;
+				//最小ピース生成確率
+				const int MIN_PIECE_GENERATE_RATE = 75;
+				if (NY_random::intrand_sl(100, 0) < MIN_PIECE_GENERATE_RATE) {
+					//ボード内で最も少ないピースを生成
+					colorNum = minPiece + 1;
+					//ただし同色ルールは適用
+					//上左で同色を生成しない
+					if (x == 0) {
+						//上2マス両方が同色のときは再度生成
+						while (PIECE_COLOR(colorNum) == boardData[1][x].GetColorNum() && PIECE_COLOR(colorNum) == boardData[2][x].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(7, 1);
+						}
+					}
+					else {
+						while (PIECE_COLOR(colorNum) == boardData[0][x - 1].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(7, 1);
+						}
+					}
+				}
+				else {
+					colorNum = NY_random::intrand_sl(7, 1);
+					//上左で同色を生成しない
+					if (x == 0) {
+						//上2マス両方が同色のときは再度生成
+						while (PIECE_COLOR(colorNum) == boardData[1][x].GetColorNum() && PIECE_COLOR(colorNum) == boardData[2][x].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(7, 1);
+						}
+					}
+					else {
+						while (PIECE_COLOR(colorNum) == boardData[0][x - 1].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(7, 1);
+						}
+					}
+				}
+
+				b.Generate(x, 0, PIECE_COLOR(colorNum));
+			}
+			// ------------------------------------------------------------------------------------------ //
+			else {
+				//ピースの総数を計算し、最も少ないピースの生成率を上げる
+				int colorNum = 0;
+				//最小ピース生成確率
+				const int MIN_PIECE_GENERATE_RATE = 75;
+				if (NY_random::intrand_sl(100, 0) < MIN_PIECE_GENERATE_RATE) {
+					//ボード内で最も少ないピースを生成
+					colorNum = minPiece + 1;
+					//ただし同色ルールは適用
+					//上左で同色を生成しない
+					if (x == 0) {
+						//上2マス両方が同色のときは再度生成
+						while (PIECE_COLOR(colorNum) == boardData[1][x].GetColorNum() && PIECE_COLOR(colorNum) == boardData[2][x].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(8, 1);
+						}
+					}
+					else {
+						while (PIECE_COLOR(colorNum) == boardData[0][x - 1].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(8, 1);
+						}
+					}
+				}
+				else {
+					colorNum = NY_random::intrand_sl(8, 1);
+					//上左で同色を生成しない
+					if (x == 0) {
+						//上2マス両方が同色のときは再度生成
+						while (PIECE_COLOR(colorNum) == boardData[1][x].GetColorNum() && PIECE_COLOR(colorNum) == boardData[2][x].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(8, 1);
+						}
+					}
+					else {
+						while (PIECE_COLOR(colorNum) == boardData[0][x - 1].GetColorNum()) {
+							colorNum = NY_random::intrand_sl(8, 1);
+						}
+					}
+				}
+				b.Generate(x, 0,PIECE_COLOR(colorNum));
+			}
+
+			x++;
 		}
 	}
 
-	//このとき天井（非表示の11列目）を超えるピースが存在する場合ゲームオーバーフラグ発生
+	if (boardStatus == BoardStatus::GAMEOVER) { return; }
 
-	//ピースデータを右シフトする（上昇と同義）
-	std::shift_right(boardData.begin(), boardData.end(), 1);
-
-	//最下段に新たな要素を代入する
-	std::array<PieceData, BOARD_WIDTH> initdata;
-	boardData[0] = initdata;
-	
-	int x = 0;
-	for (auto& b : boardData[0]) {
-		b.Generate(x, 0);
-		x++;
+	if (isNoWait) {
+		frame = 0;
+		boardStatus = BoardStatus::WAIT;
+	}
+	else {
+		frame++;
+		if (frame == 10) {
+			flameCount = 0;
+			frame = 0;
+			boardStatus = BoardStatus::WAIT;
+		}
 	}
 
-	//生成時に生成間隔をリセット
-	flameCount = 0;
 }
 
 void Board::StartPieceRotate(int selectX, int selectY)
@@ -288,13 +471,21 @@ void Board::CheckSpecialMatch()
 					upperMatchPiece.push_back(&boardData[yy][x]);
 				}
 
-				//それぞれ5つ以上ある場合、消去コンテナに保持
+				//それぞれ5つ以上ある場合、揃ったピースと同色ピースを消去コンテナに保持
 				if (upperMatchPiece.size() >= 5) {
 					int count = 0;
 					for (auto& up : upperMatchPiece) {
 						up->DeleteReservation();
 						deletePieceBuff.push_back(up);
 						count++;
+					}
+					//同色ピースも消去
+					for (auto& y : boardData) {
+						for (auto& x : y) {
+							if (x == *deletePieceBuff[0] && !x.GetDeleteReserved()) {
+								deletePieceBuff.push_back(&x);
+							}
+						}
 					}
 					isMatchPiece = true;
 					isMatchStraight = true;
@@ -306,6 +497,14 @@ void Board::CheckSpecialMatch()
 						deletePieceBuff.push_back(right);
 						count++;
 					}
+					//同色ピースも消去
+					for (auto& y : boardData) {
+						for (auto& x : y) {
+							if (x == *deletePieceBuff[0] && !x.GetDeleteReserved()) {
+								deletePieceBuff.push_back(&x);
+							}
+						}
+					}
 					isMatchPiece = true;
 					isMatchStraight = true;
 				}
@@ -315,100 +514,83 @@ void Board::CheckSpecialMatch()
 		}
 
 		//マッチしたらスキップする
-		if (isMatchStraight) {
-			
+		if (!isMatchStraight) {
+			//ダイヤモンドチェック
+			for (int y = 0; y < BOARD_HEIGHT - 4; y++) {
+				//ダイヤモンドは端から検知しない
+				for (int x = 1; x < BOARD_WIDTH - 1; x++) {	//
+					if (boardData[y][x].GetColorNum() == PIECE_COLOR::PCOLOR_NONE) {
+						continue;
+					}
+					//消すピースのまとまりを保持
+					std::vector<PieceData*> matchPiece;
+					if (boardData[y][x] == boardData[y + 3][x] &&
+						boardData[y][x] == boardData[y + 2][x - 1] &&
+						boardData[y][x] == boardData[y + 1][x - 1] &&
+						boardData[y][x] == boardData[y + 2][x + 1] &&
+						boardData[y][x] == boardData[y + 1][x + 1]) {
+						//該当する場所を削除バッファに保存
+						matchPiece.push_back(&boardData[y][x]);
+						matchPiece.push_back(&boardData[y + 3][x]);
+						matchPiece.push_back(&boardData[y + 2][x - 1]);
+						matchPiece.push_back(&boardData[y + 2][x + 1]);
+						matchPiece.push_back(&boardData[y + 1][x - 1]);
+						matchPiece.push_back(&boardData[y + 1][x + 1]);
+						isMatchDiamond = true;
+					}
+					if (isMatchDiamond) {
+						isMatchPiece = true;
+						for (auto& group : matchPiece) {
+							group->DeleteReservation();
+							deletePieceBuff.push_back(group);
+						}
+						//すべての色を消去可能に
+						ActiveMatch3(true);
+						
+						break;
+					}
+				}
+				if (isMatchDiamond) { break; }
+			}
 		}
 
-		//ダイヤモンドチェック
-		for (int y = 0; y < BOARD_HEIGHT - 4; y++) {
-			//ダイヤモンドは端から検知しない
-			for (int x = 1; x < BOARD_WIDTH - 1; x++) {	//
-				if (boardData[y][x].GetColorNum() == PIECE_COLOR::PCOLOR_NONE) {
-					continue;
-				}
-				//消すピースのまとまりを保持
-				std::vector<PieceData*> matchPiece;
-				if (boardData[y][x] == boardData[y + 3][x] && 
-					boardData[y][x] == boardData[y + 2][x - 1] && 
-					boardData[y][x] == boardData[y + 1][x - 1] && 
-					boardData[y][x] == boardData[y + 2][x + 1] && 
-					boardData[y][x] == boardData[y + 1][x + 1]) {
-					//該当する場所を削除バッファに保存
-					matchPiece.push_back(&boardData[y][x]);
-					matchPiece.push_back(&boardData[y + 3][x]);
-					matchPiece.push_back(&boardData[y + 2][x - 1]);
-					matchPiece.push_back(&boardData[y + 2][x + 1]);
-					matchPiece.push_back(&boardData[y + 1][x - 1]);
-					matchPiece.push_back(&boardData[y + 1][x + 1]);
-					isMatchDiamond = true;
-				}
-				if (isMatchDiamond) {
-					isMatchPiece = true;
-					//同色のピースをすべて削除してループ抜ける
-					for (auto& group : matchPiece) {
-						group->DeleteReservation();
-						deletePieceBuff.push_back(group);
+		if (!isMatchDiamond) {
+			//ビクトリーチェック
+			for (int y = 0; y < BOARD_HEIGHT - 3; y++) {
+				for (int x = 2; x < BOARD_WIDTH - 2; x++) {
+					if (boardData[y][x].GetColorNum() == PIECE_COLOR::PCOLOR_NONE) {
+						continue;
 					}
-					for (auto& py : boardData) {
-						for (auto& px : py) {
-							if (px == *deletePieceBuff[0] && !px.GetDeleteReserved()) {
-								deletePieceBuff.push_back(&px);
-							}
+					//消すピースのまとまりを保持
+					std::vector<PieceData*> matchPiece;
+					if (boardData[y][x] == boardData[y + 2][x - 2] &&
+						boardData[y][x] == boardData[y + 1][x - 1] &&
+						boardData[y][x] == boardData[y + 2][x + 2] &&
+						boardData[y][x] == boardData[y + 1][x + 1]) {
+						//該当する場所を削除バッファに保存
+						matchPiece.push_back(&boardData[y][x]);
+						matchPiece.push_back(&boardData[y + 2][x - 2]);
+						matchPiece.push_back(&boardData[y + 2][x + 2]);
+						matchPiece.push_back(&boardData[y + 1][x - 1]);
+						matchPiece.push_back(&boardData[y + 1][x + 1]);
+						isMatchVictory = true;
+					}
+					if (isMatchVictory) {
+						isMatchPiece = true;
+						for (auto& group : matchPiece) {
+							group->DeleteReservation();
+							deletePieceBuff.push_back(group);
 						}
+						//すべての色を消去可能に
+						ActiveMatch3(true);
+						break;
 					}
-					break;
+
 				}
+				if (isMatchVictory) { break; }
 			}
-			if (isMatchDiamond) { break; }
-		}
-
-		//ビクトリーチェック
-		for (int y = 0; y < BOARD_HEIGHT - 3; y++) {
-			for (int x = 2; x < BOARD_WIDTH - 2; x++) {
-				if (boardData[y][x].GetColorNum() == PIECE_COLOR::PCOLOR_NONE) {
-					continue;
-				}
-				//上のピース情報保持
-				std::vector<PieceData*> ;
-
-				//消すピースのまとまりを保持
-				std::vector<PieceData*> matchPiece;
-				if (boardData[y][x] == boardData[y + 2][x - 2] &&
-					boardData[y][x] == boardData[y + 1][x - 1] &&
-					boardData[y][x] == boardData[y + 2][x + 2] &&
-					boardData[y][x] == boardData[y + 1][x + 1]) {
-					//該当する場所を削除バッファに保存
-					matchPiece.push_back(&boardData[y][x]);
-					matchPiece.push_back(&boardData[y + 2][x - 2]);
-					matchPiece.push_back(&boardData[y + 2][x + 2]);
-					matchPiece.push_back(&boardData[y + 1][x - 1]);
-					matchPiece.push_back(&boardData[y + 1][x + 1]);
-					isMatchVictory = true;
-				}
-				if (isMatchVictory) {
-					isMatchPiece = true;
-					//同色のピースをすべて削除してループ抜ける
-					for (auto& group : matchPiece) {
-						group->DeleteReservation();
-						deletePieceBuff.push_back(group);
-					}
-					for (auto& py : boardData) {
-						for (auto& px : py) {
-							if (px == *deletePieceBuff[0] && !px.GetDeleteReserved()) {
-								deletePieceBuff.push_back(&px);
-							}
-						}
-					}
-					break;
-				}
-
-			}
-			if (isMatchVictory) { break; }
 		}
 	}
-
-
-
 
 	//ピースを消去開始
 	for (auto& d : deletePieceBuff) {
@@ -427,24 +609,30 @@ void Board::CheckSpecialMatch()
 		addScore += (baseScore * scoreScale);
 	}
 
-	//該当するスペシャルマッチに応じた演出再生
+	//該当するスペシャルマッチに応じたスコア加算、演出再生、特殊効果発生
 	if (isMatchStraight) {
 		addScore += 5000;
 		//ストレート演出再生
 		pieceDeleteTextDrawer.DrawSpecialText(0);
 		combo++;
+		score += addScore * scoreScale;
+		ui.AddScore(addScore);
 	}
 	if (isMatchDiamond) {
 		addScore += 5000;
 		//ストレート演出再生
 		pieceDeleteTextDrawer.DrawSpecialText(1);
 		combo++;
+		score += addScore * scoreScale;
+		ui.AddScore(addScore);
 	}
 	if (isMatchVictory) {
 		addScore += 5000;
 		//ストレート演出再生
 		pieceDeleteTextDrawer.DrawSpecialText(2);
 		combo++;
+		score += addScore * scoreScale;
+		ui.AddScore(addScore);
 	}
 
 	
@@ -488,6 +676,9 @@ void Board::CheckMatch()
 		for (int y = 0; y < BOARD_HEIGHT; y++) {
 			for (int x = 0; x < BOARD_WIDTH; x++) {
 				if (boardData[y][x].GetColorNum() == PIECE_COLOR::PCOLOR_NONE) {
+					continue;
+				}
+				if (!CheckMatch3Active(boardData[y][x].GetColorNum())) {
 					continue;
 				}
 				//上のピース情報保持
@@ -557,19 +748,24 @@ void Board::CheckMatch()
 			//演出再生
 			pieceDeleteDirection.PlayEase(ease_posX, ease_posY, 0, 0, EXECUTION_FRAME);
 
+			//消した色の消去可能フラグを非アクティブ化
+			DisableMatch3Active(d->GetColorNum());
+
+			//ピース消去
 			d->Clear();
+
 			//ピース1つにつき加算スコア増加
 			addScore += (baseScore * scoreScale);
 		}
 		int oldScore;
 		oldScore = score;
-		score += addScore;
+		score += addScore * scoreScale;
 		if (oldScore != score) {
 			ui.AddScore(addScore);
 		}
 
 		//スコアが既定値を超えた場合、レベルアップ
-		if (score > level * 10000) {
+		if (score > level * 5000) {
 			level++;
 			ui.LevelUp();
 			if (generateRemain > SPAWNTIME_MIN) {
@@ -641,16 +837,169 @@ void Board::TimeControl()
 {
 	//マッチチェック中は時間進行しない
 	//本来はコンボ進行中のみ進行しない
-	if (boardStatus == BoardStatus::PROCESSING_MATCHCHECK) {
+	if (boardStatus == BoardStatus::PROCESSING_MATCHCHECK
+		|| boardStatus == BoardStatus::PRICESSING_SPECIALCHECK) {
 		return;
 	}
 
 	flameCount++;
 
-	if (flameCount > generateRemain) {
-		UpAndGenerate();
+	if (flameCount > generateRemain && boardStatus == BoardStatus::WAIT) {
+		boardStatus = BoardStatus::PROCESSING_GENERATE;
 	}
 
+}
+
+void Board::ActiveMatch3(bool isEnforce)
+{
+	if (isEnforce) {
+		for (auto& m : isMatch3Active) {
+			m = true;
+		}
+		return;
+	}
+
+	if (level < 5) {
+		if (std::find_if(isMatch3Active.begin(), isMatch3Active.end() - 4, [](bool f) { return f; }) == isMatch3Active.end() - 4) {
+			for (auto& m : isMatch3Active) {
+				m = true;
+			}
+		}
+	}
+	else if (level < 10) {
+		if (std::find_if(isMatch3Active.begin(), isMatch3Active.end() - 1, [](bool f) { return f; }) == isMatch3Active.end() - 1) {
+			for (auto& m : isMatch3Active) {
+				m = true;
+			}
+		}
+	}
+	else {
+		if (std::find_if(isMatch3Active.begin(), isMatch3Active.end(), [](bool f) { return f; }) == isMatch3Active.end()) {
+			for (auto& m : isMatch3Active) {
+				m = true;
+			}
+		}
+	}
+
+
+}
+
+void Board::EnableMatch3(PIECE_COLOR color)
+{
+	switch (color)
+	{
+	case PIECE_COLOR::PCOLOR_NONE:
+		break;
+	case PIECE_COLOR::PCOLOR_RED:
+		isMatch3Active[0] = true;
+		break;
+	case PIECE_COLOR::PCOLOR_GREEM:
+		isMatch3Active[1] = true;
+		break;
+	case PIECE_COLOR::PCOLOR_BLUE:
+		isMatch3Active[2] = true;
+		break;
+	case PIECE_COLOR::PCOLOR_WHITE:
+		isMatch3Active[3] = true;
+		break;
+	case PIECE_COLOR::PCOLOR_YELLOW:
+		isMatch3Active[4] = true;
+		break;
+	case PIECE_COLOR::PCOLOR_SKY:
+		isMatch3Active[5] = true;
+		break;
+	case PIECE_COLOR::PCOLOR_PURPLE:
+		isMatch3Active[6] = true;
+		break;
+	case PIECE_COLOR::PCOLOR_BLACK:
+		isMatch3Active[7] = true;
+		break;
+	default:
+		break;
+	}
+}
+
+void Board::DisableMatch3Active(PIECE_COLOR color)
+{
+
+	switch (color)
+	{
+	case PIECE_COLOR::PCOLOR_NONE:
+		break;
+	case PIECE_COLOR::PCOLOR_RED:
+		isMatch3Active[0] = false;
+		break;
+	case PIECE_COLOR::PCOLOR_GREEM:
+		isMatch3Active[1] = false;
+		break;
+	case PIECE_COLOR::PCOLOR_BLUE:
+		isMatch3Active[2] = false;
+		break;
+	case PIECE_COLOR::PCOLOR_WHITE:
+		isMatch3Active[3] = false;
+		break;
+	case PIECE_COLOR::PCOLOR_YELLOW:
+		isMatch3Active[4] = false;
+		break;
+	case PIECE_COLOR::PCOLOR_SKY:
+		isMatch3Active[5] = false;
+		break;
+	case PIECE_COLOR::PCOLOR_PURPLE:
+		isMatch3Active[6] = false;
+		break;
+	case PIECE_COLOR::PCOLOR_BLACK:
+		isMatch3Active[7] = false;
+		break;
+	default:
+		break;
+	}
+}
+
+bool Board::CheckMatch3Active(PIECE_COLOR color)
+{
+	bool result = true;
+	switch (color)
+	{
+	case PIECE_COLOR::PCOLOR_NONE:
+		result = isMatch3Active[0];
+		break;
+	case PIECE_COLOR::PCOLOR_RED:
+		result = isMatch3Active[0];
+		break;
+	case PIECE_COLOR::PCOLOR_GREEM:
+		result = isMatch3Active[1];
+		break;
+	case PIECE_COLOR::PCOLOR_BLUE:
+		result = isMatch3Active[2];
+		break;
+	case PIECE_COLOR::PCOLOR_WHITE:
+		result = isMatch3Active[3];
+		break;
+
+		//以下は一定のレベルで有効化される
+
+	case PIECE_COLOR::PCOLOR_YELLOW:
+
+		if (level > 5) { result = isMatch3Active[4]; }
+		else { result = false; }
+		break;
+	case PIECE_COLOR::PCOLOR_SKY:
+		if (level > 5) { result = isMatch3Active[5]; }
+		else { result = false; }
+		break;
+	case PIECE_COLOR::PCOLOR_PURPLE:
+		if (level > 5) { result = isMatch3Active[6]; }
+		else { result = false; }
+		break;
+	case PIECE_COLOR::PCOLOR_BLACK:
+		if (level > 10) { result = isMatch3Active[7]; }
+		else { result = false; }
+		break;
+	default:
+		break;
+	}
+
+	return result;
 }
 
 void Board::DrawBoardGrid()
