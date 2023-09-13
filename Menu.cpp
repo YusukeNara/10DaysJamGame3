@@ -14,21 +14,28 @@ void Menu::Initialize() {
 
 	ui.Init();
 	sceneChange = false;
+	changeOut = true;
 }
 
 //XV
 void Menu::Update() {
-	if (Input::IsKeyTrigger(KEY_INPUT_SPACE)) {
-		sceneChange = true;
+	if (!changeOut) {
+		if (Input::IsKeyTrigger(KEY_INPUT_SPACE)) {
+			sceneChange = true;
+		}
+		if (sceneChange) {
+			ui.ChangeSceneIn(mSceneChanger, eScene_Game);
+		}
+		renditionTime++;
+		rotationTime++;
+		if (renditionTime > 60) {
+			renditionTime = 0;
+		}
 	}
-	if (sceneChange) {
-		ui.ChangeSceneIn(mSceneChanger);
+	else {
+		changeOut = ui.ChangeSceneOut();
 	}
-	renditionTime++;
-	rotationTime++;
-	if (renditionTime > 60) {
-		renditionTime = 0;
-	}
+	
 
 }
 
@@ -54,5 +61,8 @@ void Menu::Draw() {
 	
 	if (sceneChange) {
 		ui.DrawChangeIn();
+	}
+	if (changeOut) {
+		ui.DrawChangeOut();
 	}
 }

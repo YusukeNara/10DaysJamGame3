@@ -26,8 +26,8 @@ public:
 	void AddScoreRendition();
 	void LevelUpRendition();
 
-	void ChangeSceneIn(ISceneChanger* mSceneChanger);
-	void ChangeSceneOut();
+	void ChangeSceneIn(ISceneChanger* mSceneChanger, eScene name);
+	bool ChangeSceneOut();
 
 	//init
 	void CreateFontData();

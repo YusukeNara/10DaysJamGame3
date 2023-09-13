@@ -21,11 +21,13 @@ private:
     int piece[8];
 
     bool sceneChange;
+    bool changeOut;
 private:
     UI ui;
 
     //フォントハンドル
     static const int fontQuantity = 1;
+
     float PI = 3.14159;
     int fontHandle[fontQuantity];
 };

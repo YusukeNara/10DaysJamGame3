@@ -153,18 +153,28 @@ void UI::LevelUpRendition()
 	}
 }
 
-void UI::ChangeSceneIn(ISceneChanger* mSceneChanger)
+void UI::ChangeSceneIn(ISceneChanger* mSceneChanger, eScene name)
 {
 	if (changeSceneTime < 60) {
 		changeSceneTime++;
 	}
 	if (changeSceneTime >= 60) {
-		mSceneChanger->ChangeScene(eScene_Game);
+		mSceneChanger->ChangeScene(name);
 	}
 }
 
-void UI::ChangeSceneOut()
+bool UI::ChangeSceneOut()
 {
+	changeSceneTime++;
+	if (changeSceneTime < 60) {
+		//実行中を示すtrue
+		return true;
+	}
+	if (changeSceneTime >= 60) {
+		//完了を示すfalse
+		changeSceneTime = 0;
+		return false;
+	}
 }
 
 void UI::CreateFontData()
