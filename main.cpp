@@ -63,6 +63,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	FPSControl fps;
 	fps.FpsControll_Initialize();
 	//フォントデータ一時的に追加
+	AddFontResourceEx("Resources/FontData/03SmartFontUI.otf", FR_PRIVATE, NULL);
 	AddFontResourceEx("Resources/03スマートフォントUI.otf", FR_PRIVATE, NULL);
 
 	// ゲームループ

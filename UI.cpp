@@ -137,7 +137,6 @@ void UI::LevelUpRendition()
 
 void UI::CreateFontData()
 {
-	AddFontResourceEx("Resources/FontData/03SmartFontUI.otf", FR_PRIVATE, NULL);
 	fontData[0] = CreateFontToHandle(NULL, -1, -1);
 	fontData[1] = CreateFontToHandle("03SmartFontUI", 24, -1, DX_FONTTYPE_ANTIALIASING);
 	fontData[2] = CreateFontToHandle("03SmartFontUI", 64, -1, DX_FONTTYPE_ANTIALIASING);
